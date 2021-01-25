@@ -22,4 +22,5 @@ setup(
     use_scm_version={"write_to": "configsuite_tui/_version.py"},
     setup_requires=["setuptools_scm", "setuptools_scm_about"],
     install_requires=["pyyaml", "npyscreen", "configsuite"],
+    python_requires=">=3.6",
 )
