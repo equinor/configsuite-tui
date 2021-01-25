@@ -1,4 +1,4 @@
-from .tui import hello_world
+from .tui import TUI
 from .config import load
 
 try:
