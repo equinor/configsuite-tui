@@ -1,5 +1,4 @@
-from .tui import TUI
+from .tui import tui
 
 if __name__ == "__main__":
-    App = TUI()
-    App.run()
+    tui()
