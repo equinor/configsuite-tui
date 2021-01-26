@@ -1,7 +1,7 @@
 import pytest
-from configsuite import ConfigSuite, types
+from configsuite import types
 from configsuite import MetaKeys as MK
-from configsuite_tui.config import load
+from configsuite_tui.config import load, save, validate
 
 
 @pytest.fixture()
@@ -17,7 +17,8 @@ def schema():
     return s
 
 
-def test_loading_config(schema):
-    c = load("tests/data/simple.yml")
-    config = ConfigSuite(c, schema, deduce_required=True)
-    assert config.valid
+def test_saving_loading_and_validating_config(tmpdir, schema):
+    config = {"name": "Joe Biden", "hobby": "President", "age": 78}
+    save(config, tmpdir.join("test.yml"))
+    loaded_config = load(tmpdir.join("test.yml"))
+    assert validate(loaded_config, schema)
