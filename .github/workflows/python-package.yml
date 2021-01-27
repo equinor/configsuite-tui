@@ -24,9 +24,10 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements/requirements.txt
         pip install -r requirements/test-requirements.txt
-    - name: Tests
+    - name: Tests with coverage
       run: |
         coverage run --source='.' -m unittest discover
+        coverage report
     - run: black --check --verbose --diff .
     - run: flake8
     - run: pylint configsuite_tui
