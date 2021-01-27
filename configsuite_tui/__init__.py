@@ -1,5 +1,4 @@
-from .tui import tui
-from .config import load
+from configsuite_tui.tui import tui
 
 try:
     from ._version import version as __version__
