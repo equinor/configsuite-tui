@@ -9,7 +9,7 @@ def load(filename):
 
 def save(config, filename):
     with open(filename, "w") as file:
-        yaml.dump(config, file)
+        yaml.dump(config, file, sort_keys=False)
 
 
 def validate(config, schema):
