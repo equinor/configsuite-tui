@@ -1,6 +1,9 @@
 import npyscreen
+from fastnumbers import fast_real
 from configsuite import types
 from configsuite import MetaKeys as MK
+from configsuite_tui.config import save
+
 
 schema = {
     MK.Type: types.NamedDict,
@@ -26,6 +29,7 @@ def tui(**kwargs):
 class Interface(npyscreen.NPSAppManaged):
     def onStart(self):
         self.registerForm("MAIN", SchemaForm())
+        self.registerForm("save", SaveForm())
 
 
 class SchemaForm(npyscreen.FormWithMenus):
@@ -41,6 +45,7 @@ class SchemaForm(npyscreen.FormWithMenus):
             self.widgetList[s] = self.add(
                 npyscreen.TitleText,
                 name=s + " (" + schema[MK.Content][s][MK.Type][0] + "):",
+                use_two_lines=False,
             )
 
         # Add menu
@@ -50,16 +55,17 @@ class SchemaForm(npyscreen.FormWithMenus):
                 ("Save configuration file", self.save_config),
                 ("Load configuration file", self.load_config),
                 ("Validate configuration", self.validate_config),
-                ("Exit Application", self.exit_application),
+                ("Exit Application", self.exit_application, "^Q"),
             ]
         )
 
     def while_editing(self, *args, **keywords):
         for s in schema[MK.Content]:
-            config[s] = self.widgetList[s].value
+            config[s] = fast_real(self.widgetList[s].value)
 
-    def save_config(self):
-        pass
+    def save_config(self, *args, **keywords):
+        self.parentApp.setNextForm("save")
+        self.parentApp.switchFormNow()
 
     def load_config(self):
         pass
@@ -71,3 +77,15 @@ class SchemaForm(npyscreen.FormWithMenus):
         self.parentApp.setNextForm(None)
         self.editing = False
         self.parentApp.switchFormNow()
+
+
+class SaveForm(npyscreen.ActionPopup):
+    def create(self):
+        self.filename = self.add(npyscreen.TitleFilenameCombo, name="Filename")
+
+    def on_cancel(self):
+        self.parentApp.switchFormPrevious()
+
+    def on_ok(self):
+        save(config, self.filename.value)
+        self.parentApp.switchFormPrevious()
