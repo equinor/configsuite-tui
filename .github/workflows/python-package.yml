@@ -24,13 +24,9 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements/requirements.txt
         pip install -r requirements/test-requirements.txt
-    - name: Tests with coverage
+    - name: Tests; unittest, coverage, pylint, black, flake8
       run: |
-        coverage run --source='.' -m unittest discover
-        coverage report
-    - run: black --check --verbose --diff .
-    - run: flake8
-    - run: pylint configsuite_tui
+        inv lint check test
 
       
 
