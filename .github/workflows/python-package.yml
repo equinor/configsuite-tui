@@ -6,6 +6,8 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    env:
+      TERM: linux
     strategy:
       max-parallel: 4
       matrix:
@@ -22,6 +24,14 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements/requirements.txt
         pip install -r requirements/test-requirements.txt
-    - name: Test with pytest
+    - name: Tests
       run: |
-        pytest
+        coverage run --source='.' -m unittest discover
+    - run: black --check --verbose --diff .
+    - run: flake8
+    - run: pylint configsuite_tui
+
+      
+
+
+
