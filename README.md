@@ -13,6 +13,8 @@ Config Suite TUI is text-based user interface extension for [Config Suite](https
 ## Features
 
 -   Simplified editing of configuration files
+-   Import and export yaml files
+-   Instant validation
 
 ## License
 
