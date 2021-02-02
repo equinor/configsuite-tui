@@ -20,4 +20,4 @@ def check(c):
 @task
 def test(c):
     sh("coverage run --source='.' -m unittest discover", pty=True)
-    sh("coverage report -m")
+    sh("coverage xml -o cobertura.xml")
