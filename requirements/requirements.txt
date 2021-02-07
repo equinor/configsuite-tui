@@ -2,3 +2,4 @@ pyyaml==5.4.1
 configsuite==0.6.6
 npyscreen==4.10.5
 fastnumbers==3.1.0
+pluggy==0.13.1
