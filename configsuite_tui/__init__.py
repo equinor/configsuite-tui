@@ -1,4 +1,7 @@
-from configsuite_tui.tui import tui
+import pluggy
+
+hookimpl = pluggy.HookimplMarker("configsuite_tui")
+
 
 try:
     from ._version import version as __version__
