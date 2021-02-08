@@ -15,6 +15,7 @@ Config Suite TUI is text-based user interface extension for [Config Suite](https
 -   Simplified editing of configuration files
 -   Import and export yaml files
 -   Instant validation
+-   Plugin system to provide schemas from other python modules
 
 ## License
 
