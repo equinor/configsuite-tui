@@ -23,4 +23,5 @@ setup(
     setup_requires=["setuptools_scm", "setuptools_scm_about"],
     install_requires=["pyyaml", "npyscreen", "configsuite", "fastnumbers", "pluggy"],
     python_requires=">=3.6",
+    entry_points={"console_scripts": ["configsuite_tui=configsuite_tui.tui:tui"]},
 )
