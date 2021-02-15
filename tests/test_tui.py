@@ -1,3 +1,4 @@
+import datetime
 import curses
 import os
 import tempfile
@@ -33,6 +34,9 @@ class Test_Tui_With_Files(TestCase):
                 curses.ascii.NL,
                 curses.KEY_DOWN,
                 "45.35",
+                curses.KEY_DOWN,
+                "1999-01-01",
+                curses.KEY_UP,
                 curses.KEY_UP,
                 curses.KEY_UP,
                 curses.KEY_UP,
@@ -59,12 +63,14 @@ class Test_Tui_With_Files(TestCase):
                     "age": 35,
                     "active": True,
                     "score": 45.35,
+                    "birthday": datetime.date(1999, 1, 1),
                 },
             )
             self.assertTrue(valid)
             self.assertEqual(
                 tmpfile.read(),
-                b"name: Jane Doe\nhobby: Electrician\nage: 35\nactive: true\nscore: 45.35\n",
+                b"name: Jane Doe\nhobby: Electrician\nage: 35\nactive: true\nscore: \
+45.35\nbirthday: 1999-01-01\n",
             )
 
     def test_tui_load_return_validate(self):
@@ -74,6 +80,7 @@ class Test_Tui_With_Files(TestCase):
             "age": 45,
             "active": True,
             "score": 23.54,
+            "birthday": datetime.date(1999, 2, 2),
         }
         with tempfile.NamedTemporaryFile(dir=self.tmpdir) as tmpfile:
             save(config, tmpfile.name)
@@ -99,6 +106,7 @@ class Test_Tui_With_Files(TestCase):
                     "age": 45,
                     "active": True,
                     "score": 23.54,
+                    "birthday": datetime.date(1999, 2, 2),
                 },
             )
             self.assertTrue(valid)
@@ -140,6 +148,14 @@ class Test_Tui_With_Files(TestCase):
         config, valid = tui(test=True)
 
         self.assertEqual(
-            config, {"name": "", "hobby": "", "age": "", "active": None, "score": ""}
+            config,
+            {
+                "name": "",
+                "hobby": "",
+                "age": "",
+                "active": None,
+                "score": "",
+                "birthday": None,
+            },
         )
         self.assertFalse(valid)

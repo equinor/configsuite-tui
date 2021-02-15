@@ -1,3 +1,4 @@
+from datetime import datetime
 import npyscreen
 import pluggy
 from fastnumbers import fast_real
@@ -85,6 +86,11 @@ class SchemaForm(npyscreen.FormBaseNewWithMenus):
                     config[s] = fast_real(value)
                 elif basic_type == "bool" and isinstance(value, int):
                     config[s] = bool(value)
+                elif basic_type == "date":
+                    try:
+                        config[s] = datetime.strptime(value, "%Y-%m-%d").date()
+                    except ValueError:
+                        config[s] = None
                 else:
                     config[s] = None
 
@@ -106,7 +112,7 @@ class SchemaForm(npyscreen.FormBaseNewWithMenus):
         for s in schema[MK.Content]:
             basic_type = schema[MK.Content][s][MK.Type][0]
             name = s + " (" + basic_type + "):"
-            if basic_type in ["string", "integer", "number"]:
+            if basic_type in ["string", "integer", "number", "date"]:
                 self.schemawidgets[s] = self.add(
                     npyscreen.TitleText,
                     name=name,
@@ -121,6 +127,7 @@ class SchemaForm(npyscreen.FormBaseNewWithMenus):
                     begin_entry_at=len(name) + 1,
                     values=[False, True],
                 )
+
             self.display()
 
     def validate_config(self, *args, **keywords):
@@ -153,9 +160,6 @@ class SaveForm(npyscreen.ActionPopup):
             name="Filename",
         )
 
-    def beforeEditing(self):
-        self.filename.value = self.parentApp.getForm("LOAD").filename.value
-
     def on_cancel(self):
         self.parentApp.switchFormPrevious()
 
@@ -178,7 +182,7 @@ class LoadForm(npyscreen.ActionPopup):
         for s in schema[MK.Content]:
             basic_type = schema[MK.Content][s][MK.Type][0]
             if s in config:
-                if basic_type in ["string", "integer", "number"]:
+                if basic_type in ["string", "integer", "number", "date"]:
                     self.parentApp.getForm("MAIN").schemawidgets[s].value = str(
                         config[s]
                     )
