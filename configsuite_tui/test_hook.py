@@ -13,6 +13,7 @@ def configsuite_tui_schema():
             "hobby": {MK.Type: types.String},
             "age": {MK.Type: types.Integer},
             "active": {MK.Type: types.Bool},
+            "score": {MK.Type: types.Number},
         },
     }
 

@@ -81,10 +81,13 @@ class SchemaForm(npyscreen.FormBaseNewWithMenus):
             for s in schema[MK.Content]:
                 basic_type = schema[MK.Content][s][MK.Type][0]
                 value = self.schemawidgets[s].value
-                if basic_type in ["string", "integer"]:
+                if basic_type in ["string", "integer", "number"]:
                     config[s] = fast_real(value)
                 elif basic_type == "bool" and isinstance(value, int):
                     config[s] = bool(value)
+                else:
+                    config[s] = None
+
             self.validate_config()
 
     def save_config(self, *args, **keywords):
@@ -103,7 +106,7 @@ class SchemaForm(npyscreen.FormBaseNewWithMenus):
         for s in schema[MK.Content]:
             basic_type = schema[MK.Content][s][MK.Type][0]
             name = s + " (" + basic_type + "):"
-            if basic_type in ["string", "integer"]:
+            if basic_type in ["string", "integer", "number"]:
                 self.schemawidgets[s] = self.add(
                     npyscreen.TitleText,
                     name=name,
@@ -175,7 +178,7 @@ class LoadForm(npyscreen.ActionPopup):
         for s in schema[MK.Content]:
             basic_type = schema[MK.Content][s][MK.Type][0]
             if s in config:
-                if basic_type in ["string", "integer"]:
+                if basic_type in ["string", "integer", "number"]:
                     self.parentApp.getForm("MAIN").schemawidgets[s].value = str(
                         config[s]
                     )
