@@ -79,7 +79,12 @@ class SchemaForm(npyscreen.FormBaseNewWithMenus):
         global config
         if schema:
             for s in schema[MK.Content]:
-                config[s] = fast_real(self.schemawidgets[s].value)
+                basic_type = schema[MK.Content][s][MK.Type][0]
+                value = self.schemawidgets[s].value
+                if basic_type in ["string", "integer"]:
+                    config[s] = fast_real(value)
+                elif basic_type == "bool" and isinstance(value, int):
+                    config[s] = bool(value)
             self.validate_config()
 
     def save_config(self, *args, **keywords):
@@ -96,11 +101,23 @@ class SchemaForm(npyscreen.FormBaseNewWithMenus):
 
     def render_schema(self, *args, **keywords):
         for s in schema[MK.Content]:
-            self.schemawidgets[s] = self.add(
-                npyscreen.TitleText,
-                name=s + " (" + schema[MK.Content][s][MK.Type][0] + "):",
-                use_two_lines=False,
-            )
+            basic_type = schema[MK.Content][s][MK.Type][0]
+            name = s + " (" + basic_type + "):"
+            if basic_type in ["string", "integer"]:
+                self.schemawidgets[s] = self.add(
+                    npyscreen.TitleText,
+                    name=name,
+                    use_two_lines=False,
+                    begin_entry_at=len(name) + 1,
+                )
+            elif basic_type == "bool":
+                self.schemawidgets[s] = self.add(
+                    npyscreen.TitleCombo,
+                    name=name,
+                    use_two_lines=False,
+                    begin_entry_at=len(name) + 1,
+                    values=[False, True],
+                )
             self.display()
 
     def validate_config(self, *args, **keywords):
@@ -156,8 +173,16 @@ class LoadForm(npyscreen.ActionPopup):
         global config
         config = load(self.filename.value)
         for s in schema[MK.Content]:
+            basic_type = schema[MK.Content][s][MK.Type][0]
             if s in config:
-                self.parentApp.getForm("MAIN").schemawidgets[s].value = str(config[s])
+                if basic_type in ["string", "integer"]:
+                    self.parentApp.getForm("MAIN").schemawidgets[s].value = str(
+                        config[s]
+                    )
+                elif basic_type == "bool":
+                    self.parentApp.getForm("MAIN").schemawidgets[s].value = int(
+                        config[s]
+                    )
         self.parentApp.switchForm("MAIN")
 
 

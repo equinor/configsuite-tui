@@ -27,6 +27,11 @@ class Test_Tui_With_Files(TestCase):
                 "Electrician",
                 curses.KEY_DOWN,
                 "35",
+                curses.KEY_DOWN,
+                curses.ascii.NL,
+                curses.KEY_DOWN,
+                curses.ascii.NL,
+                curses.KEY_UP,
                 curses.KEY_UP,
                 curses.KEY_UP,
                 curses.KEY_UP,
@@ -45,15 +50,16 @@ class Test_Tui_With_Files(TestCase):
 
             self.assertEqual(
                 config,
-                {"name": "Jane Doe", "hobby": "Electrician", "age": 35},
+                {"name": "Jane Doe", "hobby": "Electrician", "age": 35, "active": True},
             )
             self.assertTrue(valid)
             self.assertEqual(
-                tmpfile.read(), b"name: Jane Doe\nhobby: Electrician\nage: 35\n"
+                tmpfile.read(),
+                b"name: Jane Doe\nhobby: Electrician\nage: 35\nactive: true\n",
             )
 
     def test_tui_load_return_validate(self):
-        config = {"name": "John Doe", "hobby": "Carpenter", "age": 45}
+        config = {"name": "John Doe", "hobby": "Carpenter", "age": 45, "active": True}
         with tempfile.NamedTemporaryFile(dir=self.tmpdir) as tmpfile:
             save(config, tmpfile.name)
             testinput = [
@@ -72,7 +78,7 @@ class Test_Tui_With_Files(TestCase):
 
             self.assertEqual(
                 config,
-                {"name": "John Doe", "hobby": "Carpenter", "age": 45},
+                {"name": "John Doe", "hobby": "Carpenter", "age": 45, "active": True},
             )
             self.assertTrue(valid)
 
@@ -97,7 +103,7 @@ class Test_Tui_With_Files(TestCase):
         self.assertEqual(config, {})
         self.assertFalse(valid)
 
-    def test_load_schema_no_fork(self):
+    def test_load_schema(self):
         testinput = [
             "^A",
             curses.ascii.NL,
