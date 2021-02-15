@@ -8,6 +8,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
     - name: Publish package
       uses: pypa/gh-action-pypi-publish@master
