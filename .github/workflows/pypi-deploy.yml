@@ -1,0 +1,15 @@
+name: Publish Python distributions to PyPI
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  deploy:
+    steps:
+    - name: Publish package
+      uses: pypa/gh-action-pypi-publish@master
+      with:
+        user: __token__
+        password: ${{ secrets.PYPI_SECRET }}
