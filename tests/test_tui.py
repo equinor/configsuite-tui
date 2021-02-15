@@ -31,6 +31,9 @@ class Test_Tui_With_Files(TestCase):
                 curses.ascii.NL,
                 curses.KEY_DOWN,
                 curses.ascii.NL,
+                curses.KEY_DOWN,
+                "45.35",
+                curses.KEY_UP,
                 curses.KEY_UP,
                 curses.KEY_UP,
                 curses.KEY_UP,
@@ -50,16 +53,28 @@ class Test_Tui_With_Files(TestCase):
 
             self.assertEqual(
                 config,
-                {"name": "Jane Doe", "hobby": "Electrician", "age": 35, "active": True},
+                {
+                    "name": "Jane Doe",
+                    "hobby": "Electrician",
+                    "age": 35,
+                    "active": True,
+                    "score": 45.35,
+                },
             )
             self.assertTrue(valid)
             self.assertEqual(
                 tmpfile.read(),
-                b"name: Jane Doe\nhobby: Electrician\nage: 35\nactive: true\n",
+                b"name: Jane Doe\nhobby: Electrician\nage: 35\nactive: true\nscore: 45.35\n",
             )
 
     def test_tui_load_return_validate(self):
-        config = {"name": "John Doe", "hobby": "Carpenter", "age": 45, "active": True}
+        config = {
+            "name": "John Doe",
+            "hobby": "Carpenter",
+            "age": 45,
+            "active": True,
+            "score": 23.54,
+        }
         with tempfile.NamedTemporaryFile(dir=self.tmpdir) as tmpfile:
             save(config, tmpfile.name)
             testinput = [
@@ -78,7 +93,13 @@ class Test_Tui_With_Files(TestCase):
 
             self.assertEqual(
                 config,
-                {"name": "John Doe", "hobby": "Carpenter", "age": 45, "active": True},
+                {
+                    "name": "John Doe",
+                    "hobby": "Carpenter",
+                    "age": 45,
+                    "active": True,
+                    "score": 23.54,
+                },
             )
             self.assertTrue(valid)
 
@@ -118,5 +139,7 @@ class Test_Tui_With_Files(TestCase):
         npyscreen.TEST_SETTINGS["TEST_INPUT"] = testinput
         config, valid = tui(test=True)
 
-        self.assertEqual(config, {"name": "", "hobby": "", "age": ""})
+        self.assertEqual(
+            config, {"name": "", "hobby": "", "age": "", "active": None, "score": ""}
+        )
         self.assertFalse(valid)
