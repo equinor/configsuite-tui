@@ -12,6 +12,7 @@ def configsuite_tui_schema():
             "name": {MK.Type: types.String},
             "hobby": {MK.Type: types.String},
             "age": {MK.Type: types.Integer},
+            "active": {MK.Type: types.Bool},
         },
     }
 
