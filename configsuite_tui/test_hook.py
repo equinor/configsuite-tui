@@ -15,6 +15,7 @@ def configsuite_tui_schema():
             "active": {MK.Type: types.Bool},
             "score": {MK.Type: types.Number},
             "birthday": {MK.Type: types.Date},
+            "last_seen": {MK.Type: types.DateTime},
         },
     }
 
