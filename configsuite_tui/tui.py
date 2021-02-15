@@ -1,4 +1,4 @@
-from datetime import datetime
+from dateutil.parser import isoparse
 import npyscreen
 import pluggy
 from fastnumbers import fast_real
@@ -88,12 +88,12 @@ class SchemaForm(npyscreen.FormBaseNewWithMenus):
                     config[s] = bool(value)
                 elif basic_type == "date":
                     try:
-                        config[s] = datetime.fromisoformat(value).date()
+                        config[s] = isoparse(value).date()
                     except ValueError:
                         config[s] = None
                 elif basic_type == "datetime":
                     try:
-                        config[s] = datetime.fromisoformat(value)
+                        config[s] = isoparse(value)
                     except ValueError:
                         config[s] = None
                 else:
