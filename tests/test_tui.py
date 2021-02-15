@@ -36,6 +36,9 @@ class Test_Tui_With_Files(TestCase):
                 "45.35",
                 curses.KEY_DOWN,
                 "1999-01-01",
+                curses.KEY_DOWN,
+                "2011-11-04T00:05:23",
+                curses.KEY_UP,
                 curses.KEY_UP,
                 curses.KEY_UP,
                 curses.KEY_UP,
@@ -64,13 +67,14 @@ class Test_Tui_With_Files(TestCase):
                     "active": True,
                     "score": 45.35,
                     "birthday": datetime.date(1999, 1, 1),
+                    "last_seen": datetime.datetime(2011, 11, 4, 0, 5, 23),
                 },
             )
             self.assertTrue(valid)
             self.assertEqual(
                 tmpfile.read(),
                 b"name: Jane Doe\nhobby: Electrician\nage: 35\nactive: true\nscore: \
-45.35\nbirthday: 1999-01-01\n",
+45.35\nbirthday: 1999-01-01\nlast_seen: 2011-11-04 00:05:23\n",
             )
 
     def test_tui_load_return_validate(self):
@@ -81,6 +85,7 @@ class Test_Tui_With_Files(TestCase):
             "active": True,
             "score": 23.54,
             "birthday": datetime.date(1999, 2, 2),
+            "last_seen": datetime.datetime(2011, 12, 4, 0, 4, 15),
         }
         with tempfile.NamedTemporaryFile(dir=self.tmpdir) as tmpfile:
             save(config, tmpfile.name)
@@ -107,6 +112,7 @@ class Test_Tui_With_Files(TestCase):
                     "active": True,
                     "score": 23.54,
                     "birthday": datetime.date(1999, 2, 2),
+                    "last_seen": datetime.datetime(2011, 12, 4, 0, 4, 15),
                 },
             )
             self.assertTrue(valid)
@@ -156,6 +162,7 @@ class Test_Tui_With_Files(TestCase):
                 "active": None,
                 "score": "",
                 "birthday": None,
+                "last_seen": None,
             },
         )
         self.assertFalse(valid)

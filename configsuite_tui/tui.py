@@ -88,7 +88,12 @@ class SchemaForm(npyscreen.FormBaseNewWithMenus):
                     config[s] = bool(value)
                 elif basic_type == "date":
                     try:
-                        config[s] = datetime.strptime(value, "%Y-%m-%d").date()
+                        config[s] = datetime.fromisoformat(value).date()
+                    except ValueError:
+                        config[s] = None
+                elif basic_type == "datetime":
+                    try:
+                        config[s] = datetime.fromisoformat(value)
                     except ValueError:
                         config[s] = None
                 else:
@@ -112,7 +117,7 @@ class SchemaForm(npyscreen.FormBaseNewWithMenus):
         for s in schema[MK.Content]:
             basic_type = schema[MK.Content][s][MK.Type][0]
             name = s + " (" + basic_type + "):"
-            if basic_type in ["string", "integer", "number", "date"]:
+            if basic_type in ["string", "integer", "number", "date", "datetime"]:
                 self.schemawidgets[s] = self.add(
                     npyscreen.TitleText,
                     name=name,
@@ -182,7 +187,7 @@ class LoadForm(npyscreen.ActionPopup):
         for s in schema[MK.Content]:
             basic_type = schema[MK.Content][s][MK.Type][0]
             if s in config:
-                if basic_type in ["string", "integer", "number", "date"]:
+                if basic_type in ["string", "integer", "number", "date", "datetime"]:
                     self.parentApp.getForm("MAIN").schemawidgets[s].value = str(
                         config[s]
                     )
