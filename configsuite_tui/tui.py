@@ -3,7 +3,7 @@ import npyscreen
 import pluggy
 from fastnumbers import fast_real
 from configsuite import MetaKeys as MK
-from configsuite_tui.config import save, load, validate
+from configsuite_tui.config_tools import save, load, validate
 from configsuite_tui import hookspecs, test_hook
 
 schema = {}
