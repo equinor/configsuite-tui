@@ -71,10 +71,13 @@ class Test_Tui_With_Files(TestCase):
                 },
             )
             self.assertTrue(valid)
+            test_string = (
+                "name: Jane Doe\nhobby: Electrician\nage: 35\nactive: true\nscore: "
+                + "45.35\nbirthday: 1999-01-01\nlast_seen: 2011-11-04 00:05:23\n"
+            )
             self.assertEqual(
                 tmpfile.read(),
-                b"name: Jane Doe\nhobby: Electrician\nage: 35\nactive: true\nscore: \
-45.35\nbirthday: 1999-01-01\nlast_seen: 2011-11-04 00:05:23\n",
+                test_string.encode("utf_8"),
             )
 
     def test_tui_load_return_validate(self):
@@ -90,7 +93,7 @@ class Test_Tui_With_Files(TestCase):
         with tempfile.NamedTemporaryFile(dir=self.tmpdir) as tmpfile:
             save(config, tmpfile.name)
             testinput = [
-                "^D",
+                "^L",
                 curses.ascii.NL,
                 curses.KEY_RIGHT,
                 curses.ascii.NL,
@@ -125,7 +128,7 @@ class Test_Tui_With_Files(TestCase):
             "^S",
             curses.KEY_DOWN,
             curses.ascii.NL,
-            "^D",
+            "^L",
             curses.KEY_DOWN,
             curses.ascii.NL,
             curses.KEY_DOWN,
@@ -138,7 +141,7 @@ class Test_Tui_With_Files(TestCase):
         self.assertEqual(config, {})
         self.assertFalse(valid)
 
-    def test_load_schema(self):
+    def test_load_schema_view_description(self):
         testinput = [
             "^A",
             curses.ascii.NL,
@@ -146,7 +149,9 @@ class Test_Tui_With_Files(TestCase):
             curses.KEY_DOWN,
             curses.KEY_DOWN,
             curses.ascii.NL,
-            curses.KEY_DOWN,
+            "^D",
+            curses.ascii.NL,
+            curses.ascii.NL,
             curses.KEY_UP,
             "^Q",
         ]

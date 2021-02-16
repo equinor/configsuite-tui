@@ -9,13 +9,24 @@ def configsuite_tui_schema():
     schema = {
         MK.Type: types.NamedDict,
         MK.Content: {
-            "name": {MK.Type: types.String},
-            "hobby": {MK.Type: types.String},
-            "age": {MK.Type: types.Integer},
-            "active": {MK.Type: types.Bool},
-            "score": {MK.Type: types.Number},
-            "birthday": {MK.Type: types.Date},
-            "last_seen": {MK.Type: types.DateTime},
+            "name": {MK.Type: types.String, MK.Description: "Name as a string"},
+            "hobby": {MK.Type: types.String, MK.Description: "Hobby as a string"},
+            "age": {
+                MK.Type: types.Integer,
+                MK.Description: "Age as a positive integer",
+            },
+            "active": {MK.Type: types.Bool, MK.Description: "Boolean, True or False"},
+            "score": {
+                MK.Type: types.Number,
+                MK.Description: "A number with or without decimals",
+            },
+            "birthday": {
+                MK.Type: types.Date,
+                MK.Description: "Birthday as a date on iso format e.g. '1999-02-17'",
+            },
+            "last_seen": {
+                MK.Type: types.DateTime,
+            },
         },
     }
 

@@ -53,7 +53,8 @@ class SchemaForm(CustomFormMultiPageWithMenus):
     def create(self):
         self.name = "Config Suite TUI"
         self.footer = (
-            " ^X-Menu , ^A-Load Schema , ^S-Save Config , ^D-Load Config , ^Q-Quit "
+            " ^X-Menu , ^A-Load Schema , ^S-Save Config , "
+            + "^L-Load Config , ^D-Show Field Description , ^Q-Quit "
         )
         self.schemawidgets = {}
 
@@ -61,7 +62,8 @@ class SchemaForm(CustomFormMultiPageWithMenus):
         self.add_handlers({"^Q": self.exit_application})
         self.add_handlers({"^A": self.load_schema})
         self.add_handlers({"^S": self.save_config})
-        self.add_handlers({"^D": self.load_config})
+        self.add_handlers({"^L": self.load_config})
+        self.add_handlers({"^D": self.show_field_description})
 
         # Add info text
         self.schemainfo = self.add(
@@ -75,7 +77,7 @@ class SchemaForm(CustomFormMultiPageWithMenus):
             [
                 ("Load schema", self.load_schema, "^A"),
                 ("Save configuration file", self.save_config, "^S"),
-                ("Load configuration file", self.load_config, "^D"),
+                ("Load configuration file", self.load_config, "^L"),
                 ("Exit Application", self.exit_application, "^Q"),
             ]
         )
@@ -142,7 +144,6 @@ class SchemaForm(CustomFormMultiPageWithMenus):
                     begin_entry_at=len(name) + 1,
                     values=[False, True],
                 )
-
             self.validate_config()
 
     def validate_config(self, *args, **keywords):
@@ -155,11 +156,23 @@ class SchemaForm(CustomFormMultiPageWithMenus):
                     "Config Suite TUI - Schema: " + schema_name + " - Config: Valid"
                 )
             else:
-                self.color = "DEFAULT"
                 self.name = (
                     "Config Suite TUI - Schema: " + schema_name + " - Config: Not Valid"
                 )
             self.display()
+
+    def show_field_description(self, *args, **keywords):
+        try:
+            description = schema[MK.Content][list(schema[MK.Content])[self.editw]][
+                MK.Description
+            ]
+
+        except KeyError:
+            description = "This field has no description."
+
+        npyscreen.notify_confirm(
+            description, title=self._widgets_by_id[self.editw].name
+        )
 
     def exit_application(self, *args, **keywords):
         self.parentApp.setNextForm(None)
