@@ -7,30 +7,28 @@ from configsuite_tui.config_tools import save, load, validate
 from configsuite_tui.custom_widgets import CustomFormMultiPageWithMenus
 from configsuite_tui import hookspecs, test_hook
 
-schema = {}
-schema_name = ""
-schema_list = {}
-
-config = {}
-valid = False
-
 
 def tui(**kwargs):
-    global schema, schema_name, schema_list
+    tui.schema = {}
+    tui.schema_name = ""
+    tui.schema_list = {}
+    tui.config = {}
+    tui.valid = False
+
     pm = get_plugin_manager()
     for s in pm.hook.configsuite_tui_schema():
-        schema_list.update(s)
+        tui.schema_list.update(s)
 
     App = Interface()
     if "test" in kwargs and kwargs["test"]:
         tui.test = True
-        schema = schema_list["test"]
-        schema_name = list(schema_list.keys())[0]
+        tui.schema = tui.schema_list["test"]
+        tui.schema_name = list(tui.schema_list.keys())[0]
         App.run(fork=False)
     else:
         tui.test = False
         App.run()
-    return config, valid
+    return tui.config, tui.valid
 
 
 def get_plugin_manager():
@@ -83,31 +81,30 @@ class SchemaForm(CustomFormMultiPageWithMenus):
         )
 
         # Add widgets from schema
-        if schema:
+        if tui.schema:
             self.render_schema()
 
     def adjust_widgets(self, *args, **keywords):
-        global config
-        if schema:
-            for s in schema[MK.Content]:
-                basic_type = schema[MK.Content][s][MK.Type][0]
+        if tui.schema:
+            for s in tui.schema[MK.Content]:
+                basic_type = tui.schema[MK.Content][s][MK.Type][0]
                 value = self.schemawidgets[s].value
                 if basic_type in ["string", "integer", "number"]:
-                    config[s] = fast_real(value)
+                    tui.config[s] = fast_real(value)
                 elif basic_type == "bool" and isinstance(value, int):
-                    config[s] = bool(value)
+                    tui.config[s] = bool(value)
                 elif basic_type == "date":
                     try:
-                        config[s] = isoparse(value).date()
+                        tui.config[s] = isoparse(value).date()
                     except ValueError:
-                        config[s] = None
+                        tui.config[s] = None
                 elif basic_type == "datetime":
                     try:
-                        config[s] = isoparse(value)
+                        tui.config[s] = isoparse(value)
                     except ValueError:
-                        config[s] = None
+                        tui.config[s] = None
                 else:
-                    config[s] = None
+                    tui.config[s] = None
 
             self.validate_config()
 
@@ -126,8 +123,8 @@ class SchemaForm(CustomFormMultiPageWithMenus):
     def render_schema(self, *args, **keywords):
         if not tui.test:
             self._clear_all_widgets()
-        for s in schema[MK.Content]:
-            basic_type = schema[MK.Content][s][MK.Type][0]
+        for s in tui.schema[MK.Content]:
+            basic_type = tui.schema[MK.Content][s][MK.Type][0]
             name = s + " (" + basic_type + "):"
             if basic_type in ["string", "integer", "number", "date", "datetime"]:
                 self.schemawidgets[s] = self.add_widget_intelligent(
@@ -147,25 +144,26 @@ class SchemaForm(CustomFormMultiPageWithMenus):
             self.validate_config()
 
     def validate_config(self, *args, **keywords):
-        global valid
-        if schema:
-            valid = validate(config, schema)
-            if valid:
+        if tui.schema:
+            tui.valid = validate(tui.config, tui.schema)
+            if tui.valid:
                 self.color = "GOOD"
                 self.name = (
-                    "Config Suite TUI - Schema: " + schema_name + " - Config: Valid"
+                    "Config Suite TUI - Schema: " + tui.schema_name + " - Config: Valid"
                 )
             else:
                 self.name = (
-                    "Config Suite TUI - Schema: " + schema_name + " - Config: Not Valid"
+                    "Config Suite TUI - Schema: "
+                    + tui.schema_name
+                    + " - Config: Not Valid"
                 )
             self.display()
 
     def show_field_description(self, *args, **keywords):
         try:
-            description = schema[MK.Content][list(schema[MK.Content])[self.editw]][
-                MK.Description
-            ]
+            description = tui.schema[MK.Content][
+                list(tui.schema[MK.Content])[self.editw]
+            ][MK.Description]
 
         except KeyError:
             description = "This field has no description."
@@ -189,7 +187,7 @@ class SaveForm(npyscreen.ActionPopup):
         self.parentApp.switchFormPrevious()
 
     def on_ok(self):
-        save(config, self.filename.value)
+        save(tui.config, self.filename.value)
         self.parentApp.switchFormPrevious()
 
 
@@ -202,18 +200,17 @@ class LoadForm(npyscreen.ActionPopup):
         self.parentApp.switchFormPrevious()
 
     def on_ok(self):
-        global config
-        config = load(self.filename.value)
-        for s in schema[MK.Content]:
-            basic_type = schema[MK.Content][s][MK.Type][0]
-            if s in config:
+        tui.config = load(self.filename.value)
+        for s in tui.schema[MK.Content]:
+            basic_type = tui.schema[MK.Content][s][MK.Type][0]
+            if s in tui.config:
                 if basic_type in ["string", "integer", "number", "date", "datetime"]:
                     self.parentApp.getForm("MAIN").schemawidgets[s].value = str(
-                        config[s]
+                        tui.config[s]
                     )
                 elif basic_type == "bool":
                     self.parentApp.getForm("MAIN").schemawidgets[s].value = int(
-                        config[s]
+                        tui.config[s]
                     )
         self.parentApp.switchForm("MAIN")
 
@@ -221,7 +218,7 @@ class LoadForm(npyscreen.ActionPopup):
 class LoadSchema(npyscreen.ActionPopup):
     def create(self):
         self.name = "Load schema"
-        values = list(schema_list.keys())
+        values = list(tui.schema_list.keys())
         self.schema_choice = self.add(
             npyscreen.TitleCombo, name="Schema", values=values
         )
@@ -230,9 +227,10 @@ class LoadSchema(npyscreen.ActionPopup):
         self.parentApp.switchFormPrevious()
 
     def on_ok(self):
-        global schema, schema_name
-        schema = schema_list[self.schema_choice.values[self.schema_choice.value]]
-        schema_name = self.schema_choice.values[self.schema_choice.value]
-        self.parentApp.getForm("MAIN").schemainfo.value = "Schema: " + schema_name
+        tui.schema = tui.schema_list[
+            self.schema_choice.values[self.schema_choice.value]
+        ]
+        tui.schema_name = self.schema_choice.values[self.schema_choice.value]
+        self.parentApp.getForm("MAIN").schemainfo.value = "Schema: " + tui.schema_name
         self.parentApp.getForm("MAIN").render_schema()
         self.parentApp.switchForm("MAIN")
