@@ -4,6 +4,7 @@ import pluggy
 from fastnumbers import fast_real
 from configsuite import MetaKeys as MK
 from configsuite_tui.config_tools import save, load, validate
+from configsuite_tui.custom_widgets import CustomFormMultiPageWithMenus
 from configsuite_tui import hookspecs, test_hook
 
 schema = {}
@@ -48,9 +49,12 @@ class Interface(npyscreen.NPSAppManaged):
         self.registerForm("SCHEMA", LoadSchema())
 
 
-class SchemaForm(npyscreen.FormMultiPageWithMenus):
+class SchemaForm(CustomFormMultiPageWithMenus):
     def create(self):
-        self.name = "ConfigSuite TUI"
+        self.name = "Config Suite TUI"
+        self.footer = (
+            " ^X-Menu , ^A-Load Schema , ^S-Save Config , ^D-Load Config , ^Q-Quit "
+        )
         self.schemawidgets = {}
 
         # Add keyboard shortcuts
@@ -59,8 +63,10 @@ class SchemaForm(npyscreen.FormMultiPageWithMenus):
         self.add_handlers({"^S": self.save_config})
         self.add_handlers({"^D": self.load_config})
 
+        # Add info text
         self.schemainfo = self.add(
-            npyscreen.FixedText, value="Load a schema from the menu"
+            npyscreen.FixedText,
+            value=" Load a schema from the menu or using the keybind Ctrl+A ",
         )
 
         # Add menu
