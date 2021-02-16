@@ -6,7 +6,7 @@ import shutil
 from unittest import TestCase
 import npyscreen
 from configsuite_tui.tui import tui
-from configsuite_tui.config import save
+from configsuite_tui.config_tools import save
 
 
 class Test_Tui_With_Files(TestCase):

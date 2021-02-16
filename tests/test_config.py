@@ -2,7 +2,7 @@ import unittest
 import tempfile
 from configsuite import types
 from configsuite import MetaKeys as MK
-from configsuite_tui.config import load, save, validate
+from configsuite_tui.config_tools import load, save, validate
 
 
 class TestConfig(unittest.TestCase):
