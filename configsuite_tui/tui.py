@@ -22,10 +22,12 @@ def tui(**kwargs):
 
     App = Interface()
     if "test" in kwargs and kwargs["test"]:
+        tui.test = True
         schema = schema_list["test"]
         schema_name = list(schema_list.keys())[0]
         App.run(fork=False)
     else:
+        tui.test = False
         App.run()
     return config, valid
 
@@ -46,7 +48,7 @@ class Interface(npyscreen.NPSAppManaged):
         self.registerForm("SCHEMA", LoadSchema())
 
 
-class SchemaForm(npyscreen.FormBaseNewWithMenus):
+class SchemaForm(npyscreen.FormMultiPageWithMenus):
     def create(self):
         self.name = "ConfigSuite TUI"
         self.schemawidgets = {}
@@ -114,18 +116,20 @@ class SchemaForm(npyscreen.FormBaseNewWithMenus):
         self.parentApp.switchFormNow()
 
     def render_schema(self, *args, **keywords):
+        if not tui.test:
+            self._clear_all_widgets()
         for s in schema[MK.Content]:
             basic_type = schema[MK.Content][s][MK.Type][0]
             name = s + " (" + basic_type + "):"
             if basic_type in ["string", "integer", "number", "date", "datetime"]:
-                self.schemawidgets[s] = self.add(
+                self.schemawidgets[s] = self.add_widget_intelligent(
                     npyscreen.TitleText,
                     name=name,
                     use_two_lines=False,
                     begin_entry_at=len(name) + 1,
                 )
             elif basic_type == "bool":
-                self.schemawidgets[s] = self.add(
+                self.schemawidgets[s] = self.add_widget_intelligent(
                     npyscreen.TitleCombo,
                     name=name,
                     use_two_lines=False,
@@ -133,22 +137,22 @@ class SchemaForm(npyscreen.FormBaseNewWithMenus):
                     values=[False, True],
                 )
 
-            self.display()
+            self.validate_config()
 
     def validate_config(self, *args, **keywords):
         global valid
         if schema:
             valid = validate(config, schema)
             if valid:
-                self.schemainfo.value = (
-                    "Schema: " + schema_name + " - Configuration valid"
+                self.color = "GOOD"
+                self.name = (
+                    "Config Suite TUI - Schema: " + schema_name + " - Config: Valid"
                 )
-                self.schemainfo.color = "DEFAULT"
             else:
-                self.schemainfo.value = (
-                    "Schema: " + schema_name + " - Configuration not valid"
+                self.color = "DEFAULT"
+                self.name = (
+                    "Config Suite TUI - Schema: " + schema_name + " - Config: Not Valid"
                 )
-                self.schemainfo.color = "DANGER"
             self.display()
 
     def exit_application(self, *args, **keywords):
@@ -160,10 +164,7 @@ class SchemaForm(npyscreen.FormBaseNewWithMenus):
 class SaveForm(npyscreen.ActionPopup):
     def create(self):
         self.name = "Save configuration file"
-        self.filename = self.add(
-            npyscreen.TitleFilenameCombo,
-            name="Filename",
-        )
+        self.filename = self.add(npyscreen.TitleFilenameCombo, name="Filename")
 
     def on_cancel(self):
         self.parentApp.switchFormPrevious()
