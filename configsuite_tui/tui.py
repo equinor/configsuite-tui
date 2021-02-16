@@ -121,25 +121,37 @@ class SchemaForm(CustomFormMultiPageWithMenus):
         self.parentApp.switchFormNow()
 
     def render_schema(self, *args, **keywords):
+        supported_types = ["string", "integer", "number", "date", "datetime", "bool"]
         if not tui.test:
             self._clear_all_widgets()
         for s in tui.schema[MK.Content]:
             basic_type = tui.schema[MK.Content][s][MK.Type][0]
             name = s + " (" + basic_type + "):"
-            if basic_type in ["string", "integer", "number", "date", "datetime"]:
-                self.schemawidgets[s] = self.add_widget_intelligent(
-                    npyscreen.TitleText,
-                    name=name,
-                    use_two_lines=False,
-                    begin_entry_at=len(name) + 1,
-                )
-            elif basic_type == "bool":
+            if basic_type == "bool":
                 self.schemawidgets[s] = self.add_widget_intelligent(
                     npyscreen.TitleCombo,
                     name=name,
                     use_two_lines=False,
                     begin_entry_at=len(name) + 1,
                     values=[False, True],
+                )
+            else:
+                self.schemawidgets[s] = self.add_widget_intelligent(
+                    npyscreen.TitleText,
+                    name=name,
+                    use_two_lines=False,
+                    begin_entry_at=len(name) + 1,
+                )
+
+            if basic_type not in supported_types:
+                npyscreen.notify_confirm(
+                    "Field: '"
+                    + s
+                    + "' with Type: '"
+                    + basic_type
+                    + "' is currently not supported in this version of Config "
+                    + "Suite TUI and has been rendered as a standard text field.",
+                    title="Error",
                 )
             self.validate_config()
 
