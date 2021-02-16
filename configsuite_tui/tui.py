@@ -90,7 +90,7 @@ class SchemaForm(CustomFormMultiPageWithMenus):
             for s in tui.schema[MK.Content]:
                 basic_type = tui.schema[MK.Content][s][MK.Type][0]
                 value = self.schemawidgets[s].value
-                if basic_type in ["string", "integer", "number"]:
+                if basic_type in ["integer", "number"]:
                     tui.config[s] = fast_real(value)
                 elif basic_type == "bool" and isinstance(value, int):
                     tui.config[s] = bool(value)
@@ -105,7 +105,7 @@ class SchemaForm(CustomFormMultiPageWithMenus):
                     except ValueError:
                         tui.config[s] = None
                 else:
-                    tui.config[s] = None
+                    tui.config[s] = value
 
             self.validate_config()
 
@@ -165,6 +165,7 @@ class SchemaForm(CustomFormMultiPageWithMenus):
                     "Config Suite TUI - Schema: " + tui.schema_name + " - Config: Valid"
                 )
             else:
+                self.color = "DEFAULT"
                 self.name = (
                     "Config Suite TUI - Schema: "
                     + tui.schema_name
