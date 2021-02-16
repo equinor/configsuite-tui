@@ -5,7 +5,8 @@ from fastnumbers import fast_real
 from configsuite import MetaKeys as MK
 from configsuite_tui.config_tools import save, load, validate
 from configsuite_tui.custom_widgets import CustomFormMultiPageWithMenus
-from configsuite_tui import hookspecs, test_hook
+from configsuite_tui import hookspecs
+from tests.schemas import test_schema_1
 
 
 def tui(**kwargs):
@@ -35,7 +36,7 @@ def get_plugin_manager():
     pm = pluggy.PluginManager("configsuite_tui")
     pm.add_hookspecs(hookspecs)
     pm.load_setuptools_entrypoints("configsuite_tui")
-    pm.register(test_hook)
+    pm.register(test_schema_1)
     return pm
 
 
