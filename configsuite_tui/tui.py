@@ -56,7 +56,7 @@ class Interface(npyscreen.NPSAppManaged):
 class SchemaForm(CustomFormMultiPageWithMenus):
     def create(self):
         self.name = "Config Suite TUI"
-        self.footer = self.footer = " ^X-Menu , ^A-Load Schema "
+        self.footer = self.footer = " ^X-Menu , ^A-Load Schema , ^Q-Quit "
         self.schemawidgets = {}
 
         # Add keyboard shortcuts
@@ -96,6 +96,7 @@ class SchemaForm(CustomFormMultiPageWithMenus):
             elif base_collection == "list":
                 widgets = range(len(tui.config))
                 basic_type = tui.schema[MK.Content][MK.Item][MK.Type][0]
+
             for s in widgets:
                 if base_collection == "named_dict":
                     basic_type = tui.schema[MK.Content][s][MK.Type][0]
@@ -129,7 +130,7 @@ class SchemaForm(CustomFormMultiPageWithMenus):
         if base_collection == "named_dict":
             self.footer = (
                 " ^X-Menu , ^A-Load Schema , ^S-Save Config , "
-                + "^L-Load Config , ^D-Show Field Description , ^Q-Quit "
+                + "^L-Load Config , ^D-Show Description , ^Q-Quit "
             )
             if tui.config is None:
                 tui.config = {}
@@ -167,7 +168,7 @@ class SchemaForm(CustomFormMultiPageWithMenus):
             self.add_handlers({"^E": self.edit_list})
             self.footer = (
                 " ^X-Menu , ^A-Load Schema , ^S-Save Config , "
-                + "^L-Load Config , ^D-Show Field Description , ^Q-Quit , E-Edit List "
+                + "^L-Load Config , ^D-Show Description , E-Edit List , ^Q-Quit "
             )
             basic_type = tui.schema[MK.Content][MK.Item][MK.Type][0]
             try:
@@ -329,6 +330,5 @@ class LoadSchema(CustomLoadPopup):
             self.schema_choice.values[self.schema_choice.value]
         ]
         tui.schema_name = self.schema_choice.values[self.schema_choice.value]
-        self.parentApp.getForm("MAIN").schemainfo.value = "Schema: " + tui.schema_name
         self.parentApp.getForm("MAIN").render_schema()
         self.parentApp.switchForm("MAIN")
