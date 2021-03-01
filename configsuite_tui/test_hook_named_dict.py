@@ -5,7 +5,7 @@ import configsuite_tui
 
 @configsuite_tui.hookimpl
 def configsuite_tui_schema():
-    name = "test"
+    name = "Named Dict"
     schema = {
         MK.Type: types.NamedDict,
         MK.Content: {
