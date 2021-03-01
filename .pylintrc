@@ -71,6 +71,7 @@ disable=
     global-statement,
     no-member,
     super-with-arguments,
+    attribute-defined-outside-init,
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
