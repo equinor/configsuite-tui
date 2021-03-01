@@ -141,7 +141,7 @@ class Test_Tui_With_Files(TestCase):
         npyscreen.TEST_SETTINGS["TEST_INPUT"] = testinput
         config, valid = tui()
 
-        self.assertEqual(config, {})
+        self.assertEqual(config, None)
         self.assertFalse(valid)
 
     def test_load_schema_view_description(self):
