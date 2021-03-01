@@ -4,7 +4,12 @@ import pluggy
 from fastnumbers import fast_real
 from configsuite import MetaKeys as MK
 from configsuite_tui.config_tools import save, load, validate
-from configsuite_tui.custom_widgets import CustomFormMultiPageWithMenus
+from configsuite_tui.custom_widgets import (
+    CustomFormMultiPageWithMenus,
+    CustomEditListPopup,
+    CustomLoadPopup,
+    CustomSavePopup,
+)
 from configsuite_tui import hookspecs, test_hook
 
 
@@ -42,8 +47,8 @@ def get_plugin_manager():
 class Interface(npyscreen.NPSAppManaged):
     def onStart(self):
         self.registerForm("MAIN", SchemaForm())
-        self.registerForm("SAVE", SaveForm())
-        self.registerForm("LOAD", LoadForm())
+        self.registerForm("SAVE", SaveConfig())
+        self.registerForm("LOAD", LoadConfig())
         self.registerForm("SCHEMA", LoadSchema())
         self.registerForm("EDITLIST", EditListForm())
 
@@ -271,7 +276,7 @@ class EditListForm(npyscreen.ActionPopup):
         self.parentApp.switchFormPrevious()
 
 
-class SaveForm(npyscreen.ActionPopup):
+class SaveConfig(CustomSavePopup):
     def create(self):
         self.name = "Save configuration file"
         self.filename = self.add(npyscreen.TitleFilenameCombo, name="Filename")
@@ -284,7 +289,7 @@ class SaveForm(npyscreen.ActionPopup):
         self.parentApp.switchFormPrevious()
 
 
-class LoadForm(npyscreen.ActionPopup):
+class LoadConfig(CustomLoadPopup):
     def create(self):
         self.name = "Load configuration file"
         self.filename = self.add(npyscreen.TitleFilenameCombo, name="Filename")
@@ -308,7 +313,7 @@ class LoadForm(npyscreen.ActionPopup):
         self.parentApp.switchForm("MAIN")
 
 
-class LoadSchema(npyscreen.ActionPopup):
+class LoadSchema(CustomLoadPopup):
     def create(self):
         self.name = "Load schema"
         values = list(tui.schema_list.keys())
