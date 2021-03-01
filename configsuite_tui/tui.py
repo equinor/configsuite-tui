@@ -10,7 +10,7 @@ from configsuite_tui.custom_widgets import (
     CustomLoadPopup,
     CustomSavePopup,
 )
-from configsuite_tui import hookspecs, test_hook
+from configsuite_tui import hookspecs, test_hook_named_dict, test_hook_list
 
 
 def tui(**kwargs):
@@ -40,7 +40,8 @@ def get_plugin_manager():
     pm = pluggy.PluginManager("configsuite_tui")
     pm.add_hookspecs(hookspecs)
     pm.load_setuptools_entrypoints("configsuite_tui")
-    pm.register(test_hook)
+    pm.register(test_hook_named_dict)
+    pm.register(test_hook_list)
     return pm
 
 

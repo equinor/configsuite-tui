@@ -10,10 +10,15 @@ import pluggy
 from configsuite_tui.tui import tui
 from configsuite_tui.config_tools import save
 from configsuite_tui import hookspecs
-from .schemas import test_schema_2
+from .schemas import test_schema_1, test_schema_2
 
 
 class Test_Tui_With_Files(TestCase):
+    pm = pluggy.PluginManager("configsuite_tui")
+    pm.add_hookspecs(hookspecs)
+    pm.load_setuptools_entrypoints("configsuite_tui")
+    pm.register(test_schema_1)
+
     def setUp(self):
         # Create temporary directory
         self.tmpdir = tempfile.mkdtemp()
@@ -22,7 +27,8 @@ class Test_Tui_With_Files(TestCase):
     def tearDown(self):
         shutil.rmtree(self.tmpdir)
 
-    def test_tui_input_save_return_validate(self):
+    @mock.patch("configsuite_tui.tui.get_plugin_manager", return_value=pm)
+    def test_tui_input_save_return_validate(self, mocked_pm):
         with tempfile.NamedTemporaryFile(dir=self.tmpdir) as tmpfile:
             testinput = [
                 curses.KEY_DOWN,
@@ -83,7 +89,8 @@ class Test_Tui_With_Files(TestCase):
                 test_string.encode("utf_8"),
             )
 
-    def test_tui_load_return_validate(self):
+    @mock.patch("configsuite_tui.tui.get_plugin_manager", return_value=pm)
+    def test_tui_load_return_validate(self, mocked_pm):
         config = {
             "name": "John Doe",
             "hobby": "Carpenter",
@@ -123,7 +130,8 @@ class Test_Tui_With_Files(TestCase):
             )
             self.assertTrue(valid)
 
-    def test_cancel_forms_and_no_fork(self):
+    @mock.patch("configsuite_tui.tui.get_plugin_manager", return_value=pm)
+    def test_cancel_forms_and_no_fork(self, mocked_pm):
         testinput = [
             "^A",
             curses.KEY_DOWN,
@@ -144,7 +152,8 @@ class Test_Tui_With_Files(TestCase):
         self.assertEqual(config, None)
         self.assertFalse(valid)
 
-    def test_load_schema_view_description(self):
+    @mock.patch("configsuite_tui.tui.get_plugin_manager", return_value=pm)
+    def test_load_schema_view_description(self, mocked_pm):
         testinput = [
             "^A",
             curses.ascii.NL,
