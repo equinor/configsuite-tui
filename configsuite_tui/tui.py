@@ -108,18 +108,6 @@ class SchemaForm(CustomFormMultiPageWithMenus):
 
             self.validate_config()
 
-    def save_config(self, *args, **keywords):
-        self.parentApp.setNextForm("SAVE")
-        self.parentApp.switchFormNow()
-
-    def load_config(self, *args, **keywords):
-        self.parentApp.setNextForm("LOAD")
-        self.parentApp.switchFormNow()
-
-    def load_schema(self, *args, **keywords):
-        self.parentApp.setNextForm("SCHEMA")
-        self.parentApp.switchFormNow()
-
     def render_schema(self, *args, **keywords):
         supported_types = ["string", "integer", "number", "date", "datetime", "bool"]
         if not tui.test:
@@ -184,6 +172,15 @@ class SchemaForm(CustomFormMultiPageWithMenus):
         npyscreen.notify_confirm(
             description, title=self._widgets_by_id[self.editw].name
         )
+
+    def save_config(self, *args, **keywords):
+        self.parentApp.switchForm("SAVE")
+
+    def load_config(self, *args, **keywords):
+        self.parentApp.switchForm("LOAD")
+
+    def load_schema(self, *args, **keywords):
+        self.parentApp.switchForm("SCHEMA")
 
     def exit_application(self, *args, **keywords):
         self.parentApp.setNextForm(None)
