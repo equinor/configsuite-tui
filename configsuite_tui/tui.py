@@ -174,7 +174,7 @@ class SchemaForm(CustomFormMultiPageWithMenus):
             basic_type = tui.schema[MK.Content][MK.Item][MK.Type][0]
             try:
                 for n in range(len(tui.config)):
-                    name = basic_type + " n:"
+                    name = basic_type + " [" + str(n) + "]:"
                     if basic_type == "bool":
                         self.schemawidgets[n] = self.add_widget_intelligent(
                             npyscreen.TitleComboo,
@@ -204,7 +204,7 @@ class SchemaForm(CustomFormMultiPageWithMenus):
                 tui.config = []
                 self.schemainfo = self.add(
                     npyscreen.FixedText,
-                    value=" List is empty, add list entry from list menu from Ctrl+E ",
+                    value=" List is empty, add list entry from list menu using keybind Ctrl+E ",
                 )
 
         self.display()
@@ -257,19 +257,59 @@ class SchemaForm(CustomFormMultiPageWithMenus):
         self.parentApp.switchFormNow()
 
 
-class EditListForm(npyscreen.ActionPopup):
+class EditListForm(CustomEditListPopup):
     def create(self):
         self.name = "Edit List"
-        self.add_entry = self.add(
+        self.add(
             npyscreen.MiniButtonPress,
             name="Add list entry",
             when_pressed_function=self.add_list_entry,
         )
+        self.add(
+            npyscreen.MiniButtonPress,
+            name="Move selected up",
+            when_pressed_function=self.move_list_entry_up,
+        )
+        self.add(
+            npyscreen.MiniButtonPress,
+            name="Move selected down",
+            when_pressed_function=self.move_list_entry_down,
+        )
+        self.add(
+            npyscreen.MiniButtonPress,
+            name="Delete selected",
+            when_pressed_function=self.delete_list_entry,
+        )
 
     def add_list_entry(self):
+        pos = self.parentApp.getForm("MAIN").editw
         tui.config.append("")
         self.parentApp.getForm("MAIN").render_schema()
+        self.parentApp.getForm("MAIN").editw = pos
         self.parentApp.switchForm("MAIN")
+
+    def delete_list_entry(self):
+        pos = self.parentApp.getForm("MAIN").editw
+        tui.config.pop(pos)
+        self.parentApp.getForm("MAIN").render_schema()
+        self.parentApp.getForm("MAIN").editw = pos - 1 if pos > 0 else 0
+        self.parentApp.switchForm("MAIN")
+
+    def move_list_entry_up(self):
+        pos = self.parentApp.getForm("MAIN").editw
+        if pos > 0:
+            tui.config[pos], tui.config[pos - 1] = tui.config[pos - 1], tui.config[pos]
+            self.parentApp.getForm("MAIN").render_schema()
+            self.parentApp.getForm("MAIN").editw = pos - 1
+            self.parentApp.switchForm("MAIN")
+
+    def move_list_entry_down(self):
+        pos = self.parentApp.getForm("MAIN").editw
+        if pos < len(tui.config):
+            tui.config[pos], tui.config[pos + 1] = tui.config[pos + 1], tui.config[pos]
+            self.parentApp.getForm("MAIN").render_schema()
+            self.parentApp.getForm("MAIN").editw = pos + 1
+            self.parentApp.switchForm("MAIN")
 
     def on_cancel(self):
         self.parentApp.switchFormPrevious()
@@ -331,5 +371,6 @@ class LoadSchema(CustomLoadPopup):
             self.schema_choice.values[self.schema_choice.value]
         ]
         tui.schema_name = self.schema_choice.values[self.schema_choice.value]
+        tui.config = None
         self.parentApp.getForm("MAIN").render_schema()
         self.parentApp.switchForm("MAIN")
