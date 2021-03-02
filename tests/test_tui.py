@@ -176,7 +176,7 @@ class Test_Tui_With_Files(TestCase):
                 "name": "",
                 "hobby": "",
                 "age": "",
-                "active": None,
+                "active": False,
                 "score": "",
                 "birthday": None,
                 "last_seen": None,
@@ -208,7 +208,7 @@ class Test_Tui_With_Mocked_Schema(TestCase):
                 "car": "",
                 "manufacturer": "",
                 "last_serviced": None,
-                "eu_approved": None,
+                "eu_approved": False,
                 "Additional": "",
             },
         )
