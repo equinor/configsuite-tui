@@ -5,7 +5,7 @@ from fastnumbers import fast_real
 from configsuite import MetaKeys as MK
 from configsuite_tui.config_tools import save, load, validate
 from configsuite_tui.custom_widgets import (
-    CustomFormMultiPageWithMenus,
+    CustomFormMultiPage,
     CustomEditListPopup,
     CustomLoadPopup,
     CustomSavePopup,
@@ -54,10 +54,10 @@ class Interface(npyscreen.NPSAppManaged):
         self.registerForm("EDITLIST", EditListForm())
 
 
-class SchemaForm(CustomFormMultiPageWithMenus):
+class SchemaForm(CustomFormMultiPage):
     def create(self):
         self.name = "Config Suite TUI"
-        self.footer = self.footer = " ^X-Menu , ^A-Load Schema , ^Q-Quit "
+        self.footer = self.footer = " ^A-Load Schema , ^Q-Quit "
         self.schemawidgets = {}
 
         # Add keyboard shortcuts
@@ -70,18 +70,7 @@ class SchemaForm(CustomFormMultiPageWithMenus):
         # Add info text
         self.schemainfo = self.add(
             npyscreen.FixedText,
-            value=" Load a schema from the menu or using the keybind Ctrl+A ",
-        )
-
-        # Add menu
-        self.m1 = self.add_menu(name="Main Menu")
-        self.m1.addItemsFromList(
-            [
-                ("Load schema", self.load_schema, "^A"),
-                ("Save configuration file", self.save_config, "^S"),
-                ("Load configuration file", self.load_config, "^L"),
-                ("Exit Application", self.exit_application, "^Q"),
-            ]
+            value=" Load a schema from the menu using the keybind Ctrl+A ",
         )
 
         # Add widgets from schema
@@ -130,7 +119,7 @@ class SchemaForm(CustomFormMultiPageWithMenus):
 
         if base_collection == "named_dict":
             self.footer = (
-                " ^X-Menu , ^A-Load Schema , ^S-Save Config , "
+                " ^A-Load Schema , ^S-Save Config , "
                 + "^L-Load Config , ^D-Show Description , ^Q-Quit "
             )
             if tui.config is None:
@@ -168,7 +157,7 @@ class SchemaForm(CustomFormMultiPageWithMenus):
         elif base_collection == "list":
             self.add_handlers({"^E": self.edit_list})
             self.footer = (
-                " ^X-Menu , ^A-Load Schema , ^S-Save Config , "
+                " ^A-Load Schema , ^S-Save Config , "
                 + "^L-Load Config , ^D-Show Description , E-Edit List , ^Q-Quit "
             )
             basic_type = tui.schema[MK.Content][MK.Item][MK.Type][0]
