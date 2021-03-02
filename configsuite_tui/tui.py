@@ -77,16 +77,118 @@ class SchemaForm(CustomFormMultiPage):
         if tui.schema:
             self.render_schema()
 
+    def render_schema(self, *args, **keywords):
+        if not tui.test:
+            self._clear_all_widgets()
+
+        supported_types = ["string", "integer", "number", "date", "datetime", "bool"]
+        base_collection = tui.schema[MK.Type][0]
+
+        # Named dict page settings
+        if base_collection == "named_dict":
+            self.footer = (
+                " ^A-Load Schema , ^S-Save Config , "
+                + "^L-Load Config , ^D-Show Description , ^Q-Quit "
+            )
+            if tui.config is None:
+                tui.config = {}
+            temp_config = {}
+            schema_content = tui.schema[MK.Content]
+        # List page settings
+        elif base_collection == "list":
+            self.add_handlers({"^E": self.edit_list})
+            self.footer = (
+                " ^A-Load Schema , ^S-Save Config , "
+                + "^L-Load Config , ^D-Show Description , E-Edit List , ^Q-Quit "
+            )
+
+            if tui.config is None:
+                tui.config = []
+                self.schemainfo = self.add(
+                    npyscreen.FixedText,
+                    value=" List is empty, add list entry from list menu from Ctrl+E ",
+                )
+            temp_config = []
+            schema_content = range(len(tui.config))
+
+        for s in schema_content:
+            # Named dict widget settings
+            if base_collection == "named_dict":
+                basic_type = tui.schema[MK.Content][s][MK.Type][0]
+                name = s + " (" + basic_type + "):"
+                not_supported_type = (
+                    "Field: '"
+                    + s
+                    + "' with Type: '"
+                    + basic_type
+                    + "' is currently not supported in this version of Config "
+                    + "Suite TUI and has been rendered as a standard text field."
+                )
+            # List widget settings
+            elif base_collection == "list":
+                basic_type = tui.schema[MK.Content][MK.Item][MK.Type][0]
+                name = basic_type + " [" + str(s) + "]:"
+                not_supported_type = (
+                    "Lists with Type: '"
+                    + basic_type
+                    + "' is currently not supported in this version of Config "
+                    + "Suite TUI and has been rendered as a standard text field."
+                )
+
+            # Get config value if exists, store in temp config
+            try:
+                value = tui.config[s]
+                if isinstance(tui.config, list):
+                    temp_config.append(value)
+                elif isinstance(tui.config, dict):
+                    temp_config[s] = value
+            except (KeyError, TypeError):
+                value = 0 if basic_type == "bool" else ""
+
+            # Render widget
+            self.render_widget(name, value, basic_type, s)
+
+            # Error message if unsupported type
+            if basic_type not in supported_types:
+                npyscreen.notify_confirm(
+                    not_supported_type,
+                    title="Error",
+                )
+        # Remove all config elements which is not in schema
+        tui.config = temp_config
+
+        self.display()
+        self.adjust_widgets()
+
+    def render_widget(self, name, value, basic_type, index):
+        if basic_type == "bool":
+            self.schemawidgets[index] = self.add_widget_intelligent(
+                npyscreen.TitleCombo,
+                name=name,
+                use_two_lines=False,
+                begin_entry_at=len(name) + 1,
+                values=[False, True],
+                value=int(value),
+            )
+        else:
+            self.schemawidgets[index] = self.add_widget_intelligent(
+                npyscreen.TitleText,
+                name=name,
+                use_two_lines=False,
+                begin_entry_at=len(name) + 1,
+                value=str(value),
+            )
+
     def adjust_widgets(self, *args, **keywords):
         if tui.schema:
             base_collection = tui.schema[MK.Type][0]
-
+            # Set iterable for widgets
             if base_collection == "named_dict":
                 widgets = tui.schema[MK.Content]
             elif base_collection == "list":
                 widgets = range(len(tui.config))
                 basic_type = tui.schema[MK.Content][MK.Item][MK.Type][0]
-
+            # Loop over widgets and update config with values
             for s in widgets:
                 if base_collection == "named_dict":
                     basic_type = tui.schema[MK.Content][s][MK.Type][0]
@@ -110,94 +212,6 @@ class SchemaForm(CustomFormMultiPage):
 
             self.validate_config()
 
-    def render_schema(self, *args, **keywords):
-        if not tui.test:
-            self._clear_all_widgets()
-
-        supported_types = ["string", "integer", "number", "date", "datetime", "bool"]
-        base_collection = tui.schema[MK.Type][0]
-
-        if base_collection == "named_dict":
-            self.footer = (
-                " ^A-Load Schema , ^S-Save Config , "
-                + "^L-Load Config , ^D-Show Description , ^Q-Quit "
-            )
-            if tui.config is None:
-                tui.config = {}
-            for s in tui.schema[MK.Content]:
-                basic_type = tui.schema[MK.Content][s][MK.Type][0]
-                name = s + " (" + basic_type + "):"
-                if basic_type == "bool":
-                    self.schemawidgets[s] = self.add_widget_intelligent(
-                        npyscreen.TitleCombo,
-                        name=name,
-                        use_two_lines=False,
-                        begin_entry_at=len(name) + 1,
-                        values=[False, True],
-                    )
-                else:
-                    self.schemawidgets[s] = self.add_widget_intelligent(
-                        npyscreen.TitleText,
-                        name=name,
-                        use_two_lines=False,
-                        begin_entry_at=len(name) + 1,
-                    )
-
-                if basic_type not in supported_types:
-                    npyscreen.notify_confirm(
-                        "Field: '"
-                        + s
-                        + "' with Type: '"
-                        + basic_type
-                        + "' is currently not supported in this version of Config "
-                        + "Suite TUI and has been rendered as a standard text field.",
-                        title="Error",
-                    )
-
-        elif base_collection == "list":
-            self.add_handlers({"^E": self.edit_list})
-            self.footer = (
-                " ^A-Load Schema , ^S-Save Config , "
-                + "^L-Load Config , ^D-Show Description , E-Edit List , ^Q-Quit "
-            )
-            basic_type = tui.schema[MK.Content][MK.Item][MK.Type][0]
-            try:
-                for n in range(len(tui.config)):
-                    name = basic_type + " [" + str(n) + "]:"
-                    if basic_type == "bool":
-                        self.schemawidgets[n] = self.add_widget_intelligent(
-                            npyscreen.TitleComboo,
-                            name=name,
-                            use_two_lines=False,
-                            begin_entry_at=len(name) + 1,
-                            values=[False, True],
-                            value=tui.config[n],
-                        )
-                    else:
-                        self.schemawidgets[n] = self.add_widget_intelligent(
-                            npyscreen.TitleText,
-                            name=name,
-                            use_two_lines=False,
-                            begin_entry_at=len(name) + 1,
-                            value=str(tui.config[n]),
-                        )
-                if basic_type not in supported_types:
-                    npyscreen.notify_confirm(
-                        "Lists with Type: '"
-                        + basic_type
-                        + "' is currently not supported in this version of Config "
-                        + "Suite TUI and has been rendered as a standard text field.",
-                        title="Error",
-                    )
-            except TypeError:
-                tui.config = []
-                self.schemainfo = self.add(
-                    npyscreen.FixedText,
-                    value=" List is empty, add list entry from list menu using keybind Ctrl+E ",
-                )
-
-        self.display()
-
     def validate_config(self, *args, **keywords):
         if tui.schema and tui.config:
             tui.valid = validate(tui.config, tui.schema)
@@ -216,10 +230,15 @@ class SchemaForm(CustomFormMultiPage):
             self.display()
 
     def show_field_description(self, *args, **keywords):
+        base_collection = tui.schema[MK.Type][0]
         try:
-            description = tui.schema[MK.Content][
-                list(tui.schema[MK.Content])[self.editw]
-            ][MK.Description]
+            if base_collection == "named_dict":
+                description = tui.schema[MK.Content][
+                    list(tui.schema[MK.Content])[self.editw]
+                ][MK.Description]
+
+            elif base_collection == "list":
+                description = tui.schema[MK.Content][MK.Item][MK.Description]
 
         except KeyError:
             description = "This field has no description."
@@ -294,7 +313,7 @@ class EditListForm(CustomEditListPopup):
 
     def move_list_entry_down(self):
         pos = self.parentApp.getForm("MAIN").editw
-        if pos < len(tui.config):
+        if pos < len(tui.config) - 1:
             tui.config[pos], tui.config[pos + 1] = tui.config[pos + 1], tui.config[pos]
             self.parentApp.getForm("MAIN").render_schema()
             self.parentApp.getForm("MAIN").editw = pos + 1
@@ -330,17 +349,7 @@ class LoadConfig(CustomLoadPopup):
 
     def on_ok(self):
         tui.config = load(self.filename.value)
-        for s in tui.schema[MK.Content]:
-            basic_type = tui.schema[MK.Content][s][MK.Type][0]
-            if s in tui.config:
-                if basic_type in ["string", "integer", "number", "date", "datetime"]:
-                    self.parentApp.getForm("MAIN").schemawidgets[s].value = str(
-                        tui.config[s]
-                    )
-                elif basic_type == "bool":
-                    self.parentApp.getForm("MAIN").schemawidgets[s].value = int(
-                        tui.config[s]
-                    )
+        self.parentApp.getForm("MAIN").render_schema()
         self.parentApp.switchForm("MAIN")
 
 

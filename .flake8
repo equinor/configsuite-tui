@@ -1,4 +1,4 @@
 [flake8]
-ignore = F401,W503
+ignore = F401,W503,C901
 max-line-length = 88
 max-complexity = 11
