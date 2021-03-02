@@ -1,17 +1,16 @@
 import curses
-from npyscreen import FormMultiPage, wgNMenuDisplay, fmActionFormV2, ActionPopup
+from npyscreen import FormMultiPage, fmActionFormV2, ActionPopup
 
 
-class CustomFormMultiPageWithMenus(FormMultiPage, wgNMenuDisplay.HasMenus):
+class CustomFormMultiPage(FormMultiPage):
     def __init__(self, *args, **keywords):
-        super(CustomFormMultiPageWithMenus, self).__init__(*args, **keywords)
-        self.initialize_menus()
+        super(CustomFormMultiPage, self).__init__(*args, **keywords)
 
     def display_footer_at(self):
         return self.lines - 1, 1
 
     def draw_form(self, *args, **keywords):
-        super(CustomFormMultiPageWithMenus, self).draw_form()
+        super(CustomFormMultiPage, self).draw_form()
         footer = self.footer
         if isinstance(footer, bytes):
             footer = footer.decode("utf-8", "replace")
