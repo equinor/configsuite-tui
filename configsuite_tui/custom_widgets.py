@@ -1,5 +1,11 @@
 import curses
-from npyscreen import FormMultiPage, fmActionFormV2, ActionPopup, NPSAppManaged
+from npyscreen import (
+    FormMultiPage,
+    fmActionFormV2,
+    ActionPopup,
+    NPSAppManaged,
+    MiniButtonPress,
+)
 
 
 class CustomNPSAppManaged(NPSAppManaged):
@@ -124,3 +130,69 @@ class CustomLoadPopup(ActionPopup):
 class CustomSavePopup(ActionPopup):
     OK_BUTTON_TEXT = "Save"
     CANCEL_BUTTON_TEXT = "Back"
+
+
+class CustomCollectionButton(MiniButtonPress):
+    def __init__(self, screen, *args, **keywords):
+        super(CustomCollectionButton, self).__init__(screen, *args, **keywords)
+        self.color = "DEFAULT"
+        self.label_width = len(self.name)
+
+    def calculate_area_needed(self):
+        return 1, self.label_width
+
+    def update(self, clear=True):
+        if clear:
+            self.clear()
+        if self.hidden:
+            self.clear()
+            return False
+
+        if self.value and self.do_colors():
+            self.parent.curses_pad.addstr(
+                self.rely, self.relx, ">", self.parent.theme_manager.findPair(self)
+            )
+            self.parent.curses_pad.addstr(
+                self.rely,
+                self.relx + self.width - 1,
+                "<",
+                self.parent.theme_manager.findPair(self),
+            )
+        elif self.value:
+            self.parent.curses_pad.addstr(self.rely, self.relx, ">")
+            self.parent.curses_pad.addstr(self.rely, self.relx + self.width - 1, "<")
+
+        if self.editing:
+            button_state = curses.A_STANDOUT
+        else:
+            button_state = curses.A_NORMAL
+
+        button_name = self.name
+        if isinstance(button_name, bytes):
+            button_name = button_name.decode(self.encoding, "replace")
+        button_name = button_name.center(self.label_width)
+
+        if self.do_colors():
+            if self.cursor_color:
+                if self.editing:
+                    button_attributes = self.parent.theme_manager.findPair(
+                        self, self.cursor_color
+                    )
+                else:
+                    button_attributes = self.parent.theme_manager.findPair(
+                        self, self.color
+                    )
+            else:
+                button_attributes = (
+                    self.parent.theme_manager.findPair(self, self.color) | button_state
+                )
+        else:
+            button_attributes = button_state
+
+        self.add_line(
+            self.rely,
+            self.relx,
+            button_name,
+            self.make_attributes_list(button_name, button_attributes),
+            self.label_width,
+        )
