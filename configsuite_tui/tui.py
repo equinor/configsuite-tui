@@ -79,6 +79,7 @@ class SchemaForm(CustomFormMultiPage):
             "datetime",
             "bool",
             "list",
+            "named_dict",
         ]
 
         # Add keyboard shortcuts
@@ -195,11 +196,11 @@ class SchemaForm(CustomFormMultiPage):
                 values=[False, True],
                 value=int(value),
             )
-        elif mk_type == "list":
+        elif mk_type in ["list", "named_dict"]:
             self.schemawidgets[index] = self.add(
                 npyscreen.MiniButtonPress,
                 name=name + " {...}",
-                when_pressed_function=self.edit_list,
+                when_pressed_function=self.edit_collection,
             )
         else:
             self.schemawidgets[index] = self.add_widget_intelligent(
@@ -237,7 +238,7 @@ class SchemaForm(CustomFormMultiPage):
                         tui.page_config[s] = isoparse(value)
                     except ValueError:
                         tui.page_config[s] = None
-                elif mk_type == "list":
+                elif mk_type in ["list", "named_dict"]:
                     pass
                 else:
                     tui.page_config[s] = value
@@ -280,20 +281,20 @@ class SchemaForm(CustomFormMultiPage):
             description, title=self._widgets_by_id[self.editw].name
         )
 
-    def edit_list(self, *args, **keywords):
-        tui.config_index.append(self.editw)
-        tui.schema_index.append((MK.Content, MK.Item))
+    def edit_collection(self, *args, **keywords):
+        if self.page_collection == "list":
+            tui.config_index.append(self.editw)
+            tui.schema_index.append((MK.Content, MK.Item))
+        if self.page_collection == "named_dict":
+            tui.config_index.append(list(tui.page_schema[MK.Content])[self.editw])
+            tui.schema_index.append(
+                (
+                    MK.Content,
+                    list(tui.page_schema[MK.Content])[self.editw],
+                )
+            )
         tui.page_config = None
         tui.page_schema = None
-        self.edit_popup()
-
-    def edit_named_dict(self, *args, **keywords):
-        tui.collection_edit_index.append(
-            tui.page_schema[list(tui.page_schema[MK.Content])[self.editw]]
-        )
-        tui.schema_index.append(
-            (MK.Content, list(tui.page_schema[MK.Content])[self.editw])
-        )
         self.edit_popup()
 
     def edit_popup(self, *args, **keywords):
@@ -460,23 +461,38 @@ class EditCollectionForm(SchemaForm):
     def beforeEditing(self):
         # Settings for config and schema
         if len(tui.schema_index) == 1:
-            tui.page_config = tui.config[tui.config_index[0]]
+            # Set config index. If not exists: create it
+            i = tui.config_index[0]
+            try:
+                tui.page_config = tui.config[i]
+            except KeyError:
+                tui.config[i] = None
+                tui.page_config = tui.config[i]
+
             tui.page_schema = tui.schema
             for i in tui.schema_index[0]:
                 tui.page_schema = tui.page_schema[i]
 
         if len(tui.schema_index) == 2:
+            i, j = tui.config_index
+            try:
+                tui.page_config = tui.config[i][j]
+            except KeyError:
+                tui.config[i][j] = None
+                tui.page_config = tui.config[i][j]
 
-            tui.page_config = tui.config[tui.config_index[0]][tui.config_index[1]]
             tui.page_schema = tui.schema
             for j in tui.schema_index[0] + tui.schema_index[1]:
                 tui.page_schema = tui.page_schema[j]
 
         if len(tui.schema_index) == 3:
+            i, j, k = tui.config_index
+            try:
+                tui.page_config = tui.config[i][j][k]
+            except KeyError:
+                tui.config[i][j][k] = None
+                tui.page_config = tui.config[i][j][k]
 
-            tui.page_config = tui.config[tui.config_index[0]][tui.config_index[1]][
-                tui.config_index[2]
-            ]
             tui.page_schema = tui.schema
             for j in tui.schema_index[0] + tui.schema_index[1] + tui.schema_index[2]:
                 tui.page_schema = tui.page_schema[j]
@@ -490,12 +506,12 @@ class EditCollectionForm(SchemaForm):
             tui.config[tui.config_index[0]] = tui.page_config
 
         if len(tui.schema_index) == 2:
-            tui.config[tui.config_index[0]][tui.config_index[1]] = tui.page_config
+            i, j = tui.config_index
+            tui.config[i][j] = tui.page_config
 
         if len(tui.schema_index) == 3:
-            tui.config[tui.config_index[0]][tui.config_index[1]][
-                tui.config_index[2]
-            ] = tui.page_config
+            i, j, k = tui.config_index
+            tui.config[i][j][k] = tui.page_config
 
         if tui.schema and tui.config:
             tui.valid = validate(tui.config, tui.schema)
