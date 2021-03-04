@@ -74,6 +74,9 @@ disable=
     attribute-defined-outside-init,
     duplicate-code,
     too-many-branches,
+    assignment-from-no-return,
+    too-many-instance-attributes,
+    inconsistent-return-statements,
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
