@@ -10,19 +10,26 @@ def configsuite_tui_schema():
         MK.Type: types.List,
         MK.Content: {
             MK.Item: {
-                MK.Type: types.List,
-                MK.Description: "List",
+                MK.Type: types.NamedDict,
                 MK.Content: {
-                    MK.Item: {
+                    "name": {MK.Type: types.String, MK.Description: "Name as a string"},
+                    "hobby": {
+                        MK.Type: types.String,
+                        MK.Description: "Hobby as a string",
+                    },
+                    "age": {
+                        MK.Type: types.Integer,
+                        MK.Description: "Age as a positive integer",
+                    },
+                    "list_of_dogs": {
                         MK.Type: types.List,
-                        MK.Description: "List",
                         MK.Content: {
                             MK.Item: {
-                                MK.Type: types.Integer,
-                                MK.Description: "Integer",
-                            }
+                                MK.Type: types.String,
+                                MK.Description: "Name of dog",
+                            },
                         },
-                    }
+                    },
                 },
             },
         },

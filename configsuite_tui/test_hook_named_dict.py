@@ -27,6 +27,15 @@ def configsuite_tui_schema():
             "last_seen": {
                 MK.Type: types.DateTime,
             },
+            "list_of_dogs": {
+                MK.Type: types.List,
+                MK.Content: {
+                    MK.Item: {
+                        MK.Type: types.String,
+                        MK.Description: "Name of dog",
+                    },
+                },
+            },
         },
     }
 
