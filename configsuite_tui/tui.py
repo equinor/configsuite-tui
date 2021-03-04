@@ -10,6 +10,7 @@ from configsuite_tui.custom_widgets import (
     CustomLoadPopup,
     CustomSavePopup,
     CustomNPSAppManaged,
+    CustomCollectionButton,
 )
 from configsuite_tui import hookspecs, test_hook_named_dict, test_hook_list
 
@@ -132,12 +133,12 @@ class SchemaForm(CustomFormMultiPage):
                 tui.page_config = []
                 self.schemainfo = self.add(
                     npyscreen.FixedText,
-                    value=" List is empty, add list entry from list menu from Ctrl+E ",
+                    value=" List is empty, add list entry from list menu using the keybind Ctrl+E ",
                 )
             elif tui.page_config == []:
                 self.schemainfo = self.add(
                     npyscreen.FixedText,
-                    value=" List is empty, add list entry from list menu from Ctrl+E ",
+                    value=" List is empty, add list entry from list menu using the keybind Ctrl+E ",
                 )
 
             schema_content = range(len(tui.page_config))
@@ -197,8 +198,8 @@ class SchemaForm(CustomFormMultiPage):
                 value=int(value),
             )
         elif mk_type in ["list", "named_dict"]:
-            self.schemawidgets[index] = self.add(
-                npyscreen.MiniButtonPress,
+            self.schemawidgets[index] = self.add_widget_intelligent(
+                CustomCollectionButton,
                 name=name + " {...}",
                 when_pressed_function=self.edit_collection,
             )
