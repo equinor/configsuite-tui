@@ -38,6 +38,9 @@ def tui(**kwargs):
         tui.schema = tui.schema_list["test"]
         tui.schema_name = list(tui.schema_list.keys())[0]
         App.run(fork=False)
+    elif "test_fork" in kwargs and kwargs["test_fork"]:
+        tui.test = False
+        App.run(fork=False)
     else:
         tui.test = False
         App.run()
@@ -133,12 +136,14 @@ class SchemaForm(CustomFormMultiPage):
                 tui.page_config = []
                 self.schemainfo = self.add(
                     npyscreen.FixedText,
-                    value=" List is empty, add list entry from list menu using the keybind Ctrl+E ",
+                    value=" List is empty, add list entry from list"
+                    + " menu using the keybind Ctrl+E ",
                 )
             elif tui.page_config == []:
                 self.schemainfo = self.add(
                     npyscreen.FixedText,
-                    value=" List is empty, add list entry from list menu using the keybind Ctrl+E ",
+                    value=" List is empty, add list entry from list "
+                    + " menu using the keybind Ctrl+E ",
                 )
 
             schema_content = range(len(tui.page_config))
@@ -451,6 +456,8 @@ class LoadSchema(CustomLoadPopup):
         ]
         tui.schema_name = self.schema_choice.values[self.schema_choice.value]
         tui.config = None
+        tui.page_config = None
+        tui.page_schema = None
         self.parentApp.switchForm("MAIN")
 
 

@@ -10,7 +10,7 @@ import pluggy
 from configsuite_tui.tui import tui
 from configsuite_tui.config_tools import save
 from configsuite_tui import hookspecs
-from .schemas import test_schema_1, test_schema_2
+from .schemas import test_schema_1, test_schema_2, test_schema_3, test_schema_4
 
 
 class Test_Tui_With_Files(TestCase):
@@ -262,3 +262,116 @@ class Test_Tui_With_Mocked_Schema(TestCase):
 
         with self.assertRaises(npyscreen.wgwidget.ExhaustedTestInput):
             tui(test=True)
+
+
+class Test_Tui_With_List(TestCase):
+    pm = pluggy.PluginManager("configsuite_tui")
+    pm.add_hookspecs(hookspecs)
+    pm.load_setuptools_entrypoints("configsuite_tui")
+    pm.register(test_schema_3)
+
+    @mock.patch("configsuite_tui.tui.get_plugin_manager", return_value=pm)
+    def test_list_edit_menu(self, mocked_pm):
+        testinput = [
+            "^A",
+            curses.ascii.NL,
+            curses.ascii.NL,
+            curses.KEY_DOWN,
+            curses.KEY_DOWN,
+            curses.ascii.NL,
+            "^E",
+            curses.ascii.NL,
+            curses.ascii.NL,
+            "^E",
+            curses.ascii.NL,
+            curses.KEY_DOWN,
+            "^E",
+            curses.ascii.NL,
+            curses.KEY_DOWN,
+            curses.KEY_DOWN,
+            "^E",
+            curses.ascii.NL,
+            "1",
+            curses.KEY_DOWN,
+            "2",
+            curses.KEY_DOWN,
+            "3",
+            curses.KEY_DOWN,
+            "^E",
+            curses.KEY_DOWN,
+            curses.KEY_DOWN,
+            curses.ascii.NL,
+            curses.KEY_DOWN,
+            curses.KEY_DOWN,
+            curses.KEY_DOWN,
+            "^E",
+            curses.KEY_DOWN,
+            curses.KEY_DOWN,
+            curses.KEY_DOWN,
+            curses.ascii.NL,
+            curses.KEY_DOWN,
+            curses.KEY_DOWN,
+            curses.KEY_DOWN,
+            "^Q",
+        ]
+        npyscreen.TEST_SETTINGS["TEST_INPUT"] = testinput
+        config, valid = tui(test_fork=True)
+
+        self.assertEqual(config, [[1, 3]])
+        self.assertTrue(valid)
+
+
+class Test_Tui_With_Nested_Collections(TestCase):
+    pm = pluggy.PluginManager("configsuite_tui")
+    pm.add_hookspecs(hookspecs)
+    pm.load_setuptools_entrypoints("configsuite_tui")
+    pm.register(test_schema_4)
+
+    @mock.patch("configsuite_tui.tui.get_plugin_manager", return_value=pm)
+    def test_fill_nested_schema(self, mocked_pm):
+        testinput = [
+            "^A",
+            curses.ascii.NL,
+            curses.ascii.NL,
+            curses.KEY_DOWN,
+            curses.KEY_DOWN,
+            curses.ascii.NL,
+            "Peter Parker",
+            curses.KEY_DOWN,
+            curses.ascii.NL,
+            "^E",
+            curses.ascii.NL,
+            curses.ascii.NL,
+            "911",
+            curses.KEY_DOWN,
+            "Porsche",
+            curses.KEY_DOWN,
+            curses.ascii.NL,
+            "^E",
+            curses.ascii.NL,
+            curses.KEY_DOWN,
+            "^E",
+            curses.ascii.NL,
+            "Will Smith",
+            curses.KEY_DOWN,
+            "Erna Solberg",
+            curses.KEY_DOWN,
+            "^Q",
+        ]
+        npyscreen.TEST_SETTINGS["TEST_INPUT"] = testinput
+        config, valid = tui(test_fork=True)
+
+        self.assertEqual(
+            config,
+            {
+                "name": "Peter Parker",
+                "owned_cars": [
+                    {
+                        "type": "911",
+                        "brand": "Porsche",
+                        "previous_owners": ["Will Smith", "Erna Solberg"],
+                    },
+                ],
+            },
+        )
+        self.assertTrue(valid)
