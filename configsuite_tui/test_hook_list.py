@@ -10,8 +10,20 @@ def configsuite_tui_schema():
         MK.Type: types.List,
         MK.Content: {
             MK.Item: {
-                MK.Type: types.Integer,
-                MK.Description: "Integer",
+                MK.Type: types.List,
+                MK.Description: "List",
+                MK.Content: {
+                    MK.Item: {
+                        MK.Type: types.List,
+                        MK.Description: "List",
+                        MK.Content: {
+                            MK.Item: {
+                                MK.Type: types.Integer,
+                                MK.Description: "Integer",
+                            }
+                        },
+                    }
+                },
             },
         },
     }
