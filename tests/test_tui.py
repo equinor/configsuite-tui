@@ -10,7 +10,7 @@ import pluggy
 from configsuite_tui.tui import tui
 from configsuite_tui.config_tools import save
 from configsuite_tui import hookspecs
-from .schemas import test_schema_1, test_schema_2, test_schema_3, test_schema_4
+from .schemas import test_schema_1, test_schema_2, test_schema_3
 
 
 class Test_Tui_With_Files(TestCase):
@@ -268,7 +268,7 @@ class Test_Tui_With_Nested_Collections(TestCase):
     pm = pluggy.PluginManager("configsuite_tui")
     pm.add_hookspecs(hookspecs)
     pm.load_setuptools_entrypoints("configsuite_tui")
-    pm.register(test_schema_4)
+    pm.register(test_schema_3)
 
     @mock.patch("configsuite_tui.tui.get_plugin_manager", return_value=pm)
     def test_fill_nested_schema(self, mocked_pm):
@@ -299,6 +299,18 @@ class Test_Tui_With_Nested_Collections(TestCase):
             curses.KEY_DOWN,
             "Erna Solberg",
             curses.KEY_DOWN,
+            curses.ascii.NL,
+            curses.KEY_DOWN,
+            curses.KEY_DOWN,
+            curses.KEY_DOWN,
+            curses.ascii.NL,
+            "^E",
+            curses.ascii.NL,
+            "Last service",
+            curses.KEY_DOWN,
+            curses.ascii.NL,
+            "Never",
+            curses.KEY_DOWN,
             "^Q",
         ]
         npyscreen.TEST_SETTINGS["TEST_INPUT"] = testinput
@@ -313,6 +325,7 @@ class Test_Tui_With_Nested_Collections(TestCase):
                         "type": "911",
                         "brand": "Porsche",
                         "previous_owners": ["Will Smith", "Erna Solberg"],
+                        "random_info": {"Last service": "Never"},
                     },
                 ],
             },
