@@ -264,63 +264,6 @@ class Test_Tui_With_Mocked_Schema(TestCase):
             tui(test=True)
 
 
-class Test_Tui_With_List(TestCase):
-    pm = pluggy.PluginManager("configsuite_tui")
-    pm.add_hookspecs(hookspecs)
-    pm.load_setuptools_entrypoints("configsuite_tui")
-    pm.register(test_schema_3)
-
-    @mock.patch("configsuite_tui.tui.get_plugin_manager", return_value=pm)
-    def test_list_edit_menu(self, mocked_pm):
-        testinput = [
-            "^A",
-            curses.ascii.NL,
-            curses.ascii.NL,
-            curses.KEY_DOWN,
-            curses.KEY_DOWN,
-            curses.ascii.NL,
-            "^E",
-            curses.ascii.NL,
-            curses.ascii.NL,
-            "^E",
-            curses.ascii.NL,
-            curses.KEY_DOWN,
-            "^E",
-            curses.ascii.NL,
-            curses.KEY_DOWN,
-            curses.KEY_DOWN,
-            "^E",
-            curses.ascii.NL,
-            "1",
-            curses.KEY_DOWN,
-            "2",
-            curses.KEY_DOWN,
-            "3",
-            curses.KEY_DOWN,
-            "^E",
-            curses.KEY_DOWN,
-            curses.KEY_DOWN,
-            curses.ascii.NL,
-            curses.KEY_DOWN,
-            curses.KEY_DOWN,
-            curses.KEY_DOWN,
-            "^E",
-            curses.KEY_DOWN,
-            curses.KEY_DOWN,
-            curses.KEY_DOWN,
-            curses.ascii.NL,
-            curses.KEY_DOWN,
-            curses.KEY_DOWN,
-            curses.KEY_DOWN,
-            "^Q",
-        ]
-        npyscreen.TEST_SETTINGS["TEST_INPUT"] = testinput
-        config, valid = tui(test_fork=True)
-
-        self.assertEqual(config, [[1, 3]])
-        self.assertTrue(valid)
-
-
 class Test_Tui_With_Nested_Collections(TestCase):
     pm = pluggy.PluginManager("configsuite_tui")
     pm.add_hookspecs(hookspecs)

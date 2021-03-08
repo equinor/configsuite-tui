@@ -27,6 +27,7 @@ def tui(**kwargs):
     tui.config_index = []
     tui.page_schema = None
     tui.page_config = None
+    tui.position = None
 
     pm = get_plugin_manager()
     for s in pm.hook.configsuite_tui_schema():
@@ -317,6 +318,7 @@ class SchemaForm(CustomFormMultiPage):
             )
 
     def edit_list_menu(self, *args, **keywords):
+        tui.position = self.editw
         self.parentApp.switchForm("EDITLISTMENU")
 
     def save_config(self, *args, **keywords):
@@ -361,14 +363,14 @@ class EditListForm(CustomEditListPopup):
     def beforeEditing(self):
         self.parentApp.removeCurrentFromHistory()
         self.previous_form = self.parentApp.getHistory()[-1]
+        self.pos = tui.position
 
     def add_list_entry(self):
-        pos = self.parentApp.getForm(self.previous_form).editw
         collection = self.parentApp.getForm(self.previous_form).page_collection
         if collection == "list":
             mk_type = tui.page_schema[MK.Content][MK.Item][MK.Type][0]
         elif collection == "named_dict":
-            mk_type = tui.page_schema[MK.Content][pos][MK.Type][0]
+            mk_type = tui.page_schema[MK.Content][self.pos][MK.Type][0]
 
         if mk_type == "bool":
             tui.page_config.append(0)
@@ -381,32 +383,27 @@ class EditListForm(CustomEditListPopup):
         self.parentApp.switchForm(self.previous_form)
 
     def delete_list_entry(self):
-        pos = self.parentApp.getForm(self.previous_form).editw
-        tui.page_config.pop(pos)
+        tui.page_config.pop(self.pos)
         self.parentApp.getForm(self.previous_form).render_schema()
-        self.parentApp.getForm(self.previous_form).editw = pos - 1 if pos > 0 else 0
+        self.parentApp.getForm(self.previous_form).editw = (
+            self.pos - 1 if self.pos > 0 else 0
+        )
         self.parentApp.switchForm(self.previous_form)
 
     def move_list_entry_up(self):
-        pos = self.parentApp.getForm(self.previous_form).editw
-        if pos > 0:
-            tui.page_config[pos], tui.page_config[pos - 1] = (
-                tui.page_config[pos - 1],
-                tui.page_config[pos],
+        if self.pos > 0:
+            tui.page_config[self.pos], tui.page_config[self.pos - 1] = (
+                tui.page_config[self.pos - 1],
+                tui.page_config[self.pos],
             )
-            self.parentApp.getForm(self.previous_form).render_schema()
-            self.parentApp.getForm(self.previous_form).editw = pos - 1
             self.parentApp.switchForm(self.previous_form)
 
     def move_list_entry_down(self):
-        pos = self.parentApp.getForm(self.previous_form).editw
-        if pos < len(tui.page_config) - 1:
-            tui.page_config[pos], tui.page_config[pos + 1] = (
-                tui.page_config[pos + 1],
-                tui.page_config[pos],
+        if self.pos < len(tui.page_config) - 1:
+            tui.page_config[self.pos], tui.page_config[self.pos + 1] = (
+                tui.page_config[self.pos + 1],
+                tui.page_config[self.pos],
             )
-            self.parentApp.getForm(self.previous_form).render_schema()
-            self.parentApp.getForm(self.previous_form).editw = pos + 1
             self.parentApp.switchForm(self.previous_form)
 
     def on_ok(self):
