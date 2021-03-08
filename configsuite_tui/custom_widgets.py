@@ -46,7 +46,6 @@ class CustomFormMultiPage(FormMultiPage):
             self._page_for_buttons = len(self._pages__) - 1
             self.switch_page(self._page_for_buttons)
 
-            # Add ok and cancel buttons. Will remove later
             tmp_rely, tmp_relx = self.nextrely, self.nextrelx
 
             my, mx = self.curses_pad.getmaxyx()
@@ -61,7 +60,6 @@ class CustomFormMultiPage(FormMultiPage):
                 use_max_space=True,
             )
             self._ok_button_postion = len(self._widgets__) - 1
-            # End add buttons
             self.nextrely, self.nextrelx = tmp_rely, tmp_relx
             self.switch_page(0)
 
@@ -95,7 +93,6 @@ class CustomFormMultiPage(FormMultiPage):
             self.ok_button.destroy()
             del self._widgets__[self._ok_button_postion]
             del self.ok_button
-            # self.nextrely, self.nextrelx = tmp_rely, tmp_relx
             self.display()
             self.editing = False
 
@@ -120,6 +117,10 @@ class CustomEditMenuPopup(fmActionFormV2.ActionFormV2):
             - len(self.__class__.OK_BUTTON_TEXT),
             None,
         )
+
+
+class CustomAddDictEntryPopup(CustomEditMenuPopup):
+    OK_BUTTON_TEXT = "Add"
 
 
 class CustomLoadPopup(ActionPopup):
