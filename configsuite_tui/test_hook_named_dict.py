@@ -36,6 +36,13 @@ def configsuite_tui_schema():
                     },
                 },
             },
+            "dict_of_random_info": {
+                MK.Type: types.Dict,
+                MK.Content: {
+                    MK.Key: {MK.Type: types.String},
+                    MK.Value: {MK.Type: types.String},
+                },
+            },
         },
     }
 
