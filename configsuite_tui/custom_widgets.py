@@ -102,9 +102,9 @@ class CustomFormMultiPage(FormMultiPage):
             return self.edit_return_value
 
 
-class CustomEditListPopup(fmActionFormV2.ActionFormV2):
+class CustomEditMenuPopup(fmActionFormV2.ActionFormV2):
     DEFAULT_LINES = 12
-    DEFAULT_COLUMNS = 30
+    DEFAULT_COLUMNS = 50
     SHOW_ATX = 10
     SHOW_ATY = 2
     OK_BUTTON_TEXT = "Back"
