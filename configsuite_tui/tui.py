@@ -91,6 +91,7 @@ class SchemaForm(CustomFormMultiPage):
             "datetime",
             "bool",
             "list",
+            "dict",
             "named_dict",
         ]
 
@@ -232,7 +233,7 @@ class SchemaForm(CustomFormMultiPage):
                 values=[False, True],
                 value=int(value),
             )
-        elif mk_type in ["list", "named_dict"]:
+        elif mk_type in ["list", "dict", "named_dict"]:
             self.schemawidgets[index] = self.add_widget_intelligent(
                 CustomCollectionButton,
                 name=name + " {...}",
@@ -309,9 +310,10 @@ class SchemaForm(CustomFormMultiPage):
                 description = tui.page_schema[MK.Content][
                     list(tui.page_schema[MK.Content])[self.editw]
                 ][MK.Description]
-
             elif self.page_collection == "list":
                 description = tui.page_schema[MK.Content][MK.Item][MK.Description]
+            elif self.page_collection == "dict":
+                description = tui.page_schema[MK.Content][MK.Description]
 
         except KeyError:
             description = "This field has no description."
