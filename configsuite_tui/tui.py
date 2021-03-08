@@ -11,6 +11,7 @@ from configsuite_tui.custom_widgets import (
     CustomSavePopup,
     CustomNPSAppManaged,
     CustomCollectionButton,
+    CustomAddDictEntryPopup,
 )
 from configsuite_tui import (
     hookspecs,
@@ -27,13 +28,15 @@ def tui(**kwargs):
     tui.schema_list = {}
     tui.config = None
     tui.valid = False
+    # Variables to hold partial schema and config for sub pages
+    tui.page_schema = None
+    tui.page_config = None
     # Indexes
     tui.schema_index = []
     tui.config_index = []
-    tui.page_schema = None
-    tui.page_config = None
     tui.position = None
 
+    # Get list of pluggy hooks
     pm = get_plugin_manager()
     for s in pm.hook.configsuite_tui_schema():
         tui.schema_list.update(s)
@@ -57,6 +60,7 @@ def get_plugin_manager():
     pm = pluggy.PluginManager("configsuite_tui")
     pm.add_hookspecs(hookspecs)
     pm.load_setuptools_entrypoints("configsuite_tui")
+    # Temporary hooks
     pm.register(test_hook_named_dict)
     pm.register(test_hook_list)
     pm.register(test_hook_dict)
@@ -71,7 +75,6 @@ class Interface(CustomNPSAppManaged):
         self.addForm("SCHEMA", LoadSchema)
         self.addFormClass("EDITMENU", EditMenu)
         self.addFormClass("ADD_DICT_ENTRY", AddDictEntryForm)
-
         self.addForm("EDIT_LEVEL_ONE", EditCollectionForm)
         self.addForm("EDIT_LEVEL_TWO", EditCollectionForm)
         self.addForm("EDIT_LEVEL_THREE", EditCollectionForm)
@@ -79,6 +82,7 @@ class Interface(CustomNPSAppManaged):
 
 class SchemaForm(CustomFormMultiPage):
     def create(self):
+        # Add application wide variables
         self.name = "Config Suite TUI"
         self.footer = self.footer = " ^A-Load Schema , ^Q-Quit "
         self.schemawidgets = {}
@@ -109,7 +113,7 @@ class SchemaForm(CustomFormMultiPage):
         )
 
     def beforeEditing(self):
-        # Setting form specific settings for config and schema
+        # Setting page specific settings for config and schema
         tui.page_schema = tui.schema
         tui.page_config = tui.config
 
@@ -178,6 +182,7 @@ class SchemaForm(CustomFormMultiPage):
                     + " menu using the keybind Ctrl+E ",
                 )
             schema_content = list(tui.page_config)
+
         # Loop over selected schema content
         for s in schema_content:
             # Named dict widget settings
@@ -259,33 +264,37 @@ class SchemaForm(CustomFormMultiPage):
             elif self.page_collection == "dict":
                 widgets = list(tui.page_config)
                 mk_type = tui.page_schema[MK.Content][MK.Value][MK.Type][0]
+
             # Loop over widgets and update config with values
-            for s in widgets:
+            for w in widgets:
                 if self.page_collection == "named_dict":
-                    mk_type = tui.page_schema[MK.Content][s][MK.Type][0]
-                value = self.schemawidgets[s].value
+                    mk_type = tui.page_schema[MK.Content][w][MK.Type][0]
+
+                value = self.schemawidgets[w].value
+
                 if mk_type in ["integer", "number"]:
-                    tui.page_config[s] = fast_real(value)
+                    tui.page_config[w] = fast_real(value)
                 elif mk_type == "bool" and isinstance(value, int):
-                    tui.page_config[s] = bool(value)
+                    tui.page_config[w] = bool(value)
                 elif mk_type == "date":
                     try:
-                        tui.page_config[s] = isoparse(value).date()
+                        tui.page_config[w] = isoparse(value).date()
                     except ValueError:
-                        tui.page_config[s] = None
+                        tui.page_config[w] = None
                 elif mk_type == "datetime":
                     try:
-                        tui.page_config[s] = isoparse(value)
+                        tui.page_config[w] = isoparse(value)
                     except ValueError:
-                        tui.page_config[s] = None
+                        tui.page_config[w] = None
                 elif mk_type in ["list", "dict", "named_dict"]:
                     pass
                 else:
-                    tui.page_config[s] = value
+                    tui.page_config[w] = value
 
             self.validate_config()
 
     def validate_config(self, *args, **keywords):
+        # Transfer this page's config to main config
         tui.config = tui.page_config
 
         if tui.schema and tui.config:
@@ -336,9 +345,7 @@ class SchemaForm(CustomFormMultiPage):
             )
         tui.page_config = None
         tui.page_schema = None
-        self.edit_popup()
 
-    def edit_popup(self, *args, **keywords):
         if len(tui.config_index) == 1:
             self.parentApp.switchForm("EDIT_LEVEL_ONE")
         elif len(tui.config_index) == 2:
@@ -447,6 +454,7 @@ class EditMenu(CustomEditMenuPopup):
                 for i in self.indexes:
                     self.temp_dict[i] = tui.page_config[i]
                 tui.page_config = self.temp_dict
+
             self.parentApp.getForm(self.previous_form).validate_config()
             self.parentApp.switchForm(self.previous_form)
 
@@ -473,10 +481,7 @@ class EditMenu(CustomEditMenuPopup):
         self.parentApp.switchFormPrevious()
 
 
-class AddDictEntryForm(CustomEditMenuPopup):
-    OK_BUTTON_TEXT = "Add"
-    DEFAULT_COLUMNS = 50
-
+class AddDictEntryForm(CustomAddDictEntryPopup):
     def create(self):
         self.name = "Add dictionary key"
 
@@ -563,57 +568,47 @@ class EditCollectionForm(SchemaForm):
         self.action = True
 
     def beforeEditing(self):
-        # Settings for config and schema
+        # Setting page specific settings for config
         if len(tui.schema_index) == 1:
             # Set config index. If not exists: create it
             i = tui.config_index[0]
             try:
                 tui.page_config = tui.config[i]
             except KeyError:
-                tui.config[i] = None
-                tui.page_config = tui.config[i]
-
-            tui.page_schema = tui.schema
-            for i in tui.schema_index[0]:
-                tui.page_schema = tui.page_schema[i]
-
-        if len(tui.schema_index) == 2:
+                tui.page_config = None
+        elif len(tui.schema_index) == 2:
             i, j = tui.config_index
             try:
                 tui.page_config = tui.config[i][j]
             except KeyError:
-                tui.config[i][j] = None
-                tui.page_config = tui.config[i][j]
-
-            tui.page_schema = tui.schema
-            for j in tui.schema_index[0] + tui.schema_index[1]:
-                tui.page_schema = tui.page_schema[j]
-
-        if len(tui.schema_index) == 3:
+                tui.page_config = None
+        elif len(tui.schema_index) == 3:
             i, j, k = tui.config_index
             try:
                 tui.page_config = tui.config[i][j][k]
             except KeyError:
-                tui.config[i][j][k] = None
-                tui.page_config = tui.config[i][j][k]
+                tui.page_config = None
 
-            tui.page_schema = tui.schema
-            for j in tui.schema_index[0] + tui.schema_index[1] + tui.schema_index[2]:
-                tui.page_schema = tui.page_schema[j]
+        # Setting page specific settings for schema
+        tui.page_schema = tui.schema
+        schema_indexes = []
+        for j in tui.schema_index:
+            schema_indexes.extend(list(j))
+        for k in schema_indexes:
+            tui.page_schema = tui.page_schema[k]
 
         # Add widgets from schema
         if tui.schema:
             self.render_schema()
 
     def validate_config(self, *args, **keywords):
+        # Transfer this page's config to main config
         if len(tui.schema_index) == 1:
             tui.config[tui.config_index[0]] = tui.page_config
-
-        if len(tui.schema_index) == 2:
+        elif len(tui.schema_index) == 2:
             i, j = tui.config_index
             tui.config[i][j] = tui.page_config
-
-        if len(tui.schema_index) == 3:
+        elif len(tui.schema_index) == 3:
             i, j, k = tui.config_index
             tui.config[i][j][k] = tui.page_config
 
