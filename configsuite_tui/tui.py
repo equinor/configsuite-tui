@@ -6,13 +6,18 @@ from configsuite import MetaKeys as MK
 from configsuite_tui.config_tools import save, load, validate
 from configsuite_tui.custom_widgets import (
     CustomFormMultiPage,
-    CustomEditListPopup,
+    CustomEditMenuPopup,
     CustomLoadPopup,
     CustomSavePopup,
     CustomNPSAppManaged,
     CustomCollectionButton,
 )
-from configsuite_tui import hookspecs, test_hook_named_dict, test_hook_list
+from configsuite_tui import (
+    hookspecs,
+    test_hook_named_dict,
+    test_hook_list,
+    test_hook_dict,
+)
 
 
 def tui(**kwargs):
@@ -54,6 +59,7 @@ def get_plugin_manager():
     pm.load_setuptools_entrypoints("configsuite_tui")
     pm.register(test_hook_named_dict)
     pm.register(test_hook_list)
+    pm.register(test_hook_dict)
     return pm
 
 
@@ -63,7 +69,8 @@ class Interface(CustomNPSAppManaged):
         self.addForm("SAVE", SaveConfig)
         self.addForm("LOAD", LoadConfig)
         self.addForm("SCHEMA", LoadSchema)
-        self.addForm("EDITLISTMENU", EditListForm)
+        self.addFormClass("EDITMENU", EditMenu)
+        self.addFormClass("ADD_DICT_ENTRY", AddDictEntryForm)
 
         self.addForm("EDIT_LEVEL_ONE", EditCollectionForm)
         self.addForm("EDIT_LEVEL_TWO", EditCollectionForm)
@@ -127,10 +134,10 @@ class SchemaForm(CustomFormMultiPage):
 
         # List page settings
         elif self.page_collection == "list":
-            self.add_handlers({"^E": self.edit_list_menu})
+            self.add_handlers({"^E": self.edit_menu})
             self.footer = (
                 " ^A-Load Schema , ^S-Save Config , "
-                + "^L-Load Config , ^D-Show Description , E-Edit List , ^Q-Quit "
+                + "^L-Load Config , ^D-Show Description , ^E-Edit List , ^Q-Quit "
             )
 
             if tui.page_config is None:
@@ -149,30 +156,52 @@ class SchemaForm(CustomFormMultiPage):
 
             schema_content = range(len(tui.page_config))
 
+        # Dict page settings
+        elif self.page_collection == "dict":
+            self.add_handlers({"^E": self.edit_menu})
+            self.footer = (
+                " ^A-Load Schema , ^S-Save Config , "
+                + "^L-Load Config , ^D-Show Description , ^E-Edit Dict , ^Q-Quit "
+            )
+            if tui.page_config is None:
+                tui.page_config = {}
+                self.schemainfo = self.add(
+                    npyscreen.FixedText,
+                    value=" Dict is empty, add dict entry from dict"
+                    + " menu using the keybind Ctrl+E ",
+                )
+            elif tui.page_config == {}:
+                self.schemainfo = self.add(
+                    npyscreen.FixedText,
+                    value=" Dict is empty, add dict entry from dict"
+                    + " menu using the keybind Ctrl+E ",
+                )
+            schema_content = list(tui.page_config)
         # Loop over selected schema content
         for s in schema_content:
             # Named dict widget settings
             if self.page_collection == "named_dict":
                 mk_type = tui.page_schema[MK.Content][s][MK.Type][0]
                 name = s + " (" + mk_type + "):"
-                not_supported_type = (
-                    "Field: '"
-                    + s
-                    + "' with Type: '"
-                    + mk_type
-                    + "' is currently not supported in this version of Config "
-                    + "Suite TUI and has been rendered as a standard text field."
-                )
+
             # List widget settings
             elif self.page_collection == "list":
                 mk_type = tui.page_schema[MK.Content][MK.Item][MK.Type][0]
                 name = mk_type + " [" + str(s) + "]:"
-                not_supported_type = (
-                    "Lists with Type: '"
-                    + mk_type
-                    + "' is currently not supported in this version of Config "
-                    + "Suite TUI and has been rendered as a standard text field."
-                )
+
+            # Dict widget settings
+            elif self.page_collection == "dict":
+                mk_type = tui.page_schema[MK.Content][MK.Value][MK.Type][0]
+                name = s + " (" + mk_type + "):"
+
+            not_supported_type = (
+                "Field: '"
+                + str(s)
+                + "' with Type: '"
+                + mk_type
+                + "' is currently not supported in this version of Config "
+                + "Suite TUI and has been rendered as a standard text field."
+            )
 
             # Get config value if exists
             try:
@@ -226,6 +255,9 @@ class SchemaForm(CustomFormMultiPage):
             elif self.page_collection == "list":
                 widgets = range(len(tui.page_config))
                 mk_type = tui.page_schema[MK.Content][MK.Item][MK.Type][0]
+            elif self.page_collection == "dict":
+                widgets = list(tui.page_config)
+                mk_type = tui.page_schema[MK.Content][MK.Value][MK.Type][0]
             # Loop over widgets and update config with values
             for s in widgets:
                 if self.page_collection == "named_dict":
@@ -245,7 +277,7 @@ class SchemaForm(CustomFormMultiPage):
                         tui.page_config[s] = isoparse(value)
                     except ValueError:
                         tui.page_config[s] = None
-                elif mk_type in ["list", "named_dict"]:
+                elif mk_type in ["list", "dict", "named_dict"]:
                     pass
                 else:
                     tui.page_config[s] = value
@@ -317,9 +349,9 @@ class SchemaForm(CustomFormMultiPage):
                 title="Error",
             )
 
-    def edit_list_menu(self, *args, **keywords):
+    def edit_menu(self, *args, **keywords):
         tui.position = self.editw
-        self.parentApp.switchForm("EDITLISTMENU")
+        self.parentApp.switchForm("EDITMENU")
 
     def save_config(self, *args, **keywords):
         self.parentApp.switchForm("SAVE")
@@ -336,77 +368,142 @@ class SchemaForm(CustomFormMultiPage):
         self.parentApp.switchFormNow()
 
 
-class EditListForm(CustomEditListPopup):
+class EditMenu(CustomEditMenuPopup):
     def create(self):
-        self.name = "Edit List"
+        self.name = "Edit Collection"
         self.add(
             npyscreen.MiniButtonPress,
-            name="Add list entry",
-            when_pressed_function=self.add_list_entry,
+            name="Add entry",
+            when_pressed_function=self.add_entry,
         )
         self.add(
             npyscreen.MiniButtonPress,
             name="Move selected up",
-            when_pressed_function=self.move_list_entry_up,
+            when_pressed_function=self.move_entry_up,
         )
         self.add(
             npyscreen.MiniButtonPress,
             name="Move selected down",
-            when_pressed_function=self.move_list_entry_down,
+            when_pressed_function=self.move_entry_down,
         )
         self.add(
             npyscreen.MiniButtonPress,
             name="Delete selected",
-            when_pressed_function=self.delete_list_entry,
+            when_pressed_function=self.delete_entry,
         )
 
     def beforeEditing(self):
         self.parentApp.removeCurrentFromHistory()
         self.previous_form = self.parentApp.getHistory()[-1]
+        self.collection = self.parentApp.getForm(self.previous_form).page_collection
         self.pos = tui.position
+        self.temp_dict = {}
+        self.indexes = list(tui.page_config)
 
-    def add_list_entry(self):
-        collection = self.parentApp.getForm(self.previous_form).page_collection
-        if collection == "list":
+    def add_entry(self):
+        if self.collection == "list":
             mk_type = tui.page_schema[MK.Content][MK.Item][MK.Type][0]
-        elif collection == "named_dict":
-            mk_type = tui.page_schema[MK.Content][self.pos][MK.Type][0]
 
-        if mk_type == "bool":
-            tui.page_config.append(0)
-        elif mk_type == "list":
-            tui.page_config.append([])
-        elif mk_type == "named_dict":
-            tui.page_config.append({})
-        else:
-            tui.page_config.append("")
-        self.parentApp.switchForm(self.previous_form)
-
-    def delete_list_entry(self):
-        tui.page_config.pop(self.pos)
-        self.parentApp.getForm(self.previous_form).render_schema()
-        self.parentApp.getForm(self.previous_form).editw = (
-            self.pos - 1 if self.pos > 0 else 0
-        )
-        self.parentApp.switchForm(self.previous_form)
-
-    def move_list_entry_up(self):
-        if self.pos > 0:
-            tui.page_config[self.pos], tui.page_config[self.pos - 1] = (
-                tui.page_config[self.pos - 1],
-                tui.page_config[self.pos],
-            )
+            if mk_type == "bool":
+                tui.page_config.append(0)
+            elif mk_type == "list":
+                tui.page_config.append([])
+            elif mk_type in ["dict", "named_dict"]:
+                tui.page_config.append({})
+            else:
+                tui.page_config.append("")
             self.parentApp.switchForm(self.previous_form)
 
-    def move_list_entry_down(self):
-        if self.pos < len(tui.page_config) - 1:
-            tui.page_config[self.pos], tui.page_config[self.pos + 1] = (
-                tui.page_config[self.pos + 1],
-                tui.page_config[self.pos],
-            )
+        elif self.collection == "dict":
+            self.parentApp.switchForm("ADD_DICT_ENTRY")
+
+    def delete_entry(self):
+        if len(tui.page_config) > 0 and self.pos < len(tui.page_config):
+            if self.collection == "list":
+                tui.page_config.pop(self.pos)
+            elif self.collection == "dict":
+                self.indexes.pop(self.pos)
+                for i in self.indexes:
+                    self.temp_dict[i] = tui.page_config[i]
+                tui.page_config = self.temp_dict
+
+            self.parentApp.getForm(self.previous_form).validate_config()
+            self.parentApp.switchForm(self.previous_form)
+
+    def move_entry_up(self):
+        if self.pos > 0 and self.pos < len(tui.page_config):
+            if self.collection == "list":
+                tui.page_config[self.pos], tui.page_config[self.pos - 1] = (
+                    tui.page_config[self.pos - 1],
+                    tui.page_config[self.pos],
+                )
+            elif self.collection == "dict":
+                self.indexes[self.pos], self.indexes[self.pos - 1] = (
+                    self.indexes[self.pos - 1],
+                    self.indexes[self.pos],
+                )
+                for i in self.indexes:
+                    self.temp_dict[i] = tui.page_config[i]
+                tui.page_config = self.temp_dict
+            self.parentApp.getForm(self.previous_form).validate_config()
+            self.parentApp.switchForm(self.previous_form)
+
+    def move_entry_down(self):
+        if self.pos < len(tui.page_config) - 1 and self.pos < len(tui.page_config):
+            if self.collection == "list":
+                tui.page_config[self.pos], tui.page_config[self.pos + 1] = (
+                    tui.page_config[self.pos + 1],
+                    tui.page_config[self.pos],
+                )
+            elif self.collection == "dict":
+                self.indexes[self.pos], self.indexes[self.pos + 1] = (
+                    self.indexes[self.pos + 1],
+                    self.indexes[self.pos],
+                )
+                for i in self.indexes:
+                    self.temp_dict[i] = tui.page_config[i]
+                tui.page_config = self.temp_dict
+
+            self.parentApp.getForm(self.previous_form).validate_config()
             self.parentApp.switchForm(self.previous_form)
 
     def on_ok(self):
+        self.parentApp.switchFormPrevious()
+
+
+class AddDictEntryForm(CustomEditMenuPopup):
+    OK_BUTTON_TEXT = "Add"
+    DEFAULT_COLUMNS = 50
+
+    def create(self):
+        self.name = "Add dictionary key"
+
+    def beforeEditing(self):
+        self.key_type = tui.page_schema[MK.Content][MK.Key][MK.Type][0]
+        name = "Dict Key (" + self.key_type + "):"
+        self.dict_key = self.add(
+            npyscreen.TitleText,
+            name=name,
+            use_two_lines=False,
+            begin_entry_at=len(name) + 1,
+        )
+
+    def on_ok(self):
+        if self.dict_key.value and self.dict_key.value not in tui.page_config:
+            tui.page_config[self.dict_key.value] = ""
+        elif self.dict_key.value in tui.page_config:
+            npyscreen.notify_confirm(
+                self.dict_key.value + " already exists.",
+                title="Error",
+            )
+        else:
+            npyscreen.notify_confirm(
+                self.dict_key.value
+                + " is not a valid key. Please enter a unique key of type "
+                + self.key_type
+                + ".",
+                title="Error",
+            )
         self.parentApp.switchFormPrevious()
 
 
