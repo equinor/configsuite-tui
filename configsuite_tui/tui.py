@@ -3,7 +3,8 @@ import npyscreen
 import pluggy
 from fastnumbers import fast_real
 from configsuite import MetaKeys as MK
-from configsuite_tui.config_tools import save, load, validate
+from yaml.scanner import ScannerError
+from configsuite_tui.config_tools import save, load, validate, readable
 from configsuite_tui.custom_widgets import (
     CustomFormMultiPage,
     CustomEditMenuPopup,
@@ -188,7 +189,7 @@ class SchemaForm(CustomFormMultiPage):
             # Named dict widget settings
             if self.page_collection == "named_dict":
                 mk_type = tui.page_schema[MK.Content][s][MK.Type][0]
-                name = s + " (" + mk_type + "):"
+                name = str(s) + " (" + mk_type + "):"
 
             # List widget settings
             elif self.page_collection == "list":
@@ -198,7 +199,7 @@ class SchemaForm(CustomFormMultiPage):
             # Dict widget settings
             elif self.page_collection == "dict":
                 mk_type = tui.page_schema[MK.Content][MK.Value][MK.Type][0]
-                name = s + " (" + mk_type + "):"
+                name = str(s) + " (" + mk_type + "):"
 
             not_supported_type = (
                 "Field: '"
@@ -531,12 +532,35 @@ class LoadConfig(CustomLoadPopup):
     def create(self):
         self.name = "Load configuration file"
         self.filename = self.add(npyscreen.TitleFilenameCombo, name="Filename")
+        self.error_message = ""
 
     def on_cancel(self):
         self.parentApp.switchFormPrevious()
 
     def on_ok(self):
-        tui.config = load(self.filename.value)
+        try:
+            tui.config = load(self.filename.value)
+        except ScannerError:
+            self.error_message = (
+                "The loaded configuration is corrupt. "
+                + "Please check that the configuration is created "
+                + "for the loaded schema and formatted properly.",
+            )
+
+        if not readable(tui.config, tui.schema):
+            self.error_message = (
+                "The loaded configuration is invalid. "
+                + "Please check that the configuration is created "
+                + "for the loaded schema and formatted properly.",
+            )
+            tui.config = None
+
+        if self.error_message:
+            npyscreen.notify_confirm(
+                self.error_message,
+                title="Error",
+            )
+
         self.parentApp.switchForm("MAIN")
 
 
