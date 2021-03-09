@@ -14,3 +14,7 @@ def save(config, filename):
 
 def validate(config, schema):
     return ConfigSuite(config, schema, deduce_required=True).valid
+
+
+def readable(config, schema):
+    return ConfigSuite(config, schema, deduce_required=True).readable
