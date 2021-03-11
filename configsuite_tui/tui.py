@@ -239,10 +239,16 @@ class SchemaForm(CustomFormMultiPage):
                 values=[False, True],
                 value=int(value),
             )
-        elif mk_type in ["list", "dict", "named_dict"]:
+        elif mk_type in ["dict", "named_dict"]:
             self.schemawidgets[index] = self.add_widget_intelligent(
                 CustomCollectionButton,
                 name=name + " {...}",
+                when_pressed_function=self.edit_collection,
+            )
+        elif mk_type == "list":
+            self.schemawidgets[index] = self.add_widget_intelligent(
+                CustomCollectionButton,
+                name=name + " [...]",
                 when_pressed_function=self.edit_collection,
             )
         else:
