@@ -133,3 +133,6 @@ configsuite_tui/_version.py
 
 # IDE
 .vscode
+
+# MAC
+.DS_Store
