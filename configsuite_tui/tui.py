@@ -13,6 +13,7 @@ from configsuite_tui.custom_widgets import (
     CustomNPSAppManaged,
     CustomCollectionButton,
     CustomAddDictEntryPopup,
+    custom_notify_wait,
 )
 from configsuite_tui import (
     hookspecs,
@@ -28,6 +29,7 @@ def tui(**kwargs):
     tui.schema_name = ""
     tui.schema_list = {}
     tui.config = None
+    tui.config_file = ""
     tui.valid = False
     # Variables to hold partial schema and config for sub pages
     tui.page_schema = None
@@ -524,14 +526,27 @@ class AddDictEntryForm(CustomAddDictEntryPopup):
 class SaveConfig(CustomSavePopup):
     def create(self):
         self.name = "Save configuration file"
+        self.footer = ""
         self.filename = self.add(npyscreen.TitleFilenameCombo, name="Filename")
+
+    def beforeEditing(self):
+        if tui.config_file:
+            self.filename.value = tui.config_file
+            self.name = "Save configuration file"
+            self.add_handlers({"^S": self.on_ok})
+            self.footer = " ^S-Quick Save "
 
     def on_cancel(self):
         self.parentApp.switchFormPrevious()
 
-    def on_ok(self):
-        save(tui.config, self.filename.value)
-        self.parentApp.switchFormPrevious()
+    def on_ok(self, *args, **keywords):
+        if self.filename.value:
+            save(tui.config, self.filename.value)
+            tui.config_file = self.filename.value
+            custom_notify_wait(
+                title="Saved", message="Configuration saved to: " + tui.config_file
+            )
+            self.parentApp.switchFormPrevious()
 
 
 class LoadConfig(CustomLoadPopup):
@@ -546,6 +561,7 @@ class LoadConfig(CustomLoadPopup):
     def on_ok(self):
         try:
             tui.config = load(self.filename.value)
+            tui.config_file = self.filename.value
         except yaml.YAMLError:
             self.error_message = (
                 "The loaded configuration is corrupt. "
