@@ -3,7 +3,7 @@ import npyscreen
 import pluggy
 from fastnumbers import fast_real
 from configsuite import MetaKeys as MK
-from yaml.scanner import ScannerError
+import yaml
 from configsuite_tui.config_tools import save, load, validate, readable
 from configsuite_tui.custom_widgets import (
     CustomFormMultiPage,
@@ -540,11 +540,11 @@ class LoadConfig(CustomLoadPopup):
     def on_ok(self):
         try:
             tui.config = load(self.filename.value)
-        except ScannerError:
+        except yaml.YAMLError:
             self.error_message = (
                 "The loaded configuration is corrupt. "
                 + "Please check that the configuration is created "
-                + "for the loaded schema and formatted properly.",
+                + "for the loaded schema and formatted properly."
             )
 
         if not readable(tui.config, tui.schema):
