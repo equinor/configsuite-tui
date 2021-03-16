@@ -381,9 +381,11 @@ class SchemaForm(CustomFormMultiPage):
         self.parentApp.switchForm("SCHEMA")
 
     def exit_application(self, *args, **keywords):
-        self.parentApp.setNextForm(None)
-        self.editing = False
-        self.parentApp.switchFormNow()
+        message = "Are you sure you want to exit?\nAll unsaved progress will be lost"
+        if npyscreen.notify_yes_no(message, title="Exit application"):
+            self.parentApp.setNextForm(None)
+            self.editing = False
+            self.parentApp.switchFormNow()
 
 
 class EditMenu(CustomEditMenuPopup):

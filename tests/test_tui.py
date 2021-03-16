@@ -63,6 +63,9 @@ class Test_Tui_With_Files(TestCase):
                 curses.KEY_DOWN,
                 curses.ascii.NL,
                 "^Q",
+                curses.ascii.NL,
+                curses.KEY_RIGHT,
+                curses.ascii.NL,
             ]
             npyscreen.TEST_SETTINGS["TEST_INPUT"] = testinput
             config, valid = tui(test=True)
@@ -112,6 +115,9 @@ class Test_Tui_With_Files(TestCase):
                 curses.KEY_DOWN,
                 curses.ascii.NL,
                 "^Q",
+                curses.ascii.NL,
+                curses.KEY_RIGHT,
+                curses.ascii.NL,
             ]
             npyscreen.TEST_SETTINGS["TEST_INPUT"] = testinput
             config, valid = tui(test=True)
@@ -145,6 +151,9 @@ class Test_Tui_With_Files(TestCase):
             curses.KEY_DOWN,
             curses.KEY_UP,
             "^Q",
+            curses.ascii.NL,
+            curses.KEY_RIGHT,
+            curses.ascii.NL,
         ]
         npyscreen.TEST_SETTINGS["TEST_INPUT"] = testinput
         config, valid = tui()
@@ -166,6 +175,9 @@ class Test_Tui_With_Files(TestCase):
             curses.ascii.NL,
             curses.KEY_UP,
             "^Q",
+            curses.ascii.NL,
+            curses.KEY_RIGHT,
+            curses.ascii.NL,
         ]
         npyscreen.TEST_SETTINGS["TEST_INPUT"] = testinput
         config, valid = tui(test=True)
@@ -198,6 +210,9 @@ class Test_Tui_With_Mocked_Schema(TestCase):
             curses.ascii.NL,
             curses.ascii.NL,
             "^Q",
+            curses.ascii.NL,
+            curses.KEY_RIGHT,
+            curses.ascii.NL,
         ]
         npyscreen.TEST_SETTINGS["TEST_INPUT"] = testinput
         config, valid = tui(test=True)
@@ -237,6 +252,9 @@ class Test_Tui_With_Mocked_Schema(TestCase):
             curses.KEY_UP,
             curses.KEY_UP,
             "^Q",
+            curses.ascii.NL,
+            curses.KEY_RIGHT,
+            curses.ascii.NL,
         ]
         npyscreen.TEST_SETTINGS["TEST_INPUT"] = testinput
         config, valid = tui(test=True)
@@ -257,6 +275,9 @@ class Test_Tui_With_Mocked_Schema(TestCase):
     def test_error_blocks_quit(self, mocked_pm):
         testinput = [
             "^Q",
+            curses.ascii.NL,
+            curses.KEY_RIGHT,
+            curses.ascii.NL,
         ]
         npyscreen.TEST_SETTINGS["TEST_INPUT"] = testinput
 
@@ -312,6 +333,9 @@ class Test_Tui_With_Nested_Collections(TestCase):
             "Never",
             curses.KEY_DOWN,
             "^Q",
+            curses.ascii.NL,
+            curses.KEY_RIGHT,
+            curses.ascii.NL,
         ]
         npyscreen.TEST_SETTINGS["TEST_INPUT"] = testinput
         config, valid = tui(test_fork=True)
