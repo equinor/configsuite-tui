@@ -21,6 +21,7 @@ class TestConfig(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tempdir:
             filepath = tempdir + "/test.yml"
             config = {"name": "Joe Biden", "hobby": "President", "age": 78}
-            save(config, filepath)
-            loaded_config = load(filepath)
+            save(config, filepath, "test")
+            loaded_config, loaded_schema = load(filepath)
             self.assertTrue(validate(loaded_config, self.schema))
+            self.assertEqual(loaded_schema, "test")
