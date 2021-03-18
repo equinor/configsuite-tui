@@ -347,21 +347,51 @@ class SchemaForm(CustomFormMultiPage):
             self.display()
 
     def show_field_description(self, *args, **keywords):
+        # Get description
         try:
             if self.page_collection == "named_dict":
                 description = tui.page_schema[MK.Content][
                     list(tui.page_schema[MK.Content])[self.editw]
                 ][MK.Description]
+                if list(tui.page_schema[MK.Content])[self.editw] in tui.page_errors:
+                    error = tui.page_errors[
+                        list(tui.page_schema[MK.Content])[self.editw]
+                    ]
+                else:
+                    error = "No errors"
             elif self.page_collection == "list":
                 description = tui.page_schema[MK.Content][MK.Item][MK.Description]
+                if self.editw in tui.page_errors:
+                    error = tui.page_errors[self.editw]
+                else:
+                    error = "No errors"
             elif self.page_collection == "dict":
                 description = tui.page_schema[MK.Content][MK.Description]
-
+                if list(tui.page_schema[MK.Content])[self.editw] in tui.page_errors:
+                    error = tui.page_errors[
+                        list(tui.page_schema[MK.Content])[self.editw]
+                    ]
+                else:
+                    error = "No errors"
         except KeyError:
             description = "This field has no description."
 
+        # Get errors
+        if self.page_collection in ["named_dict", "dict"]:
+            if list(tui.page_schema[MK.Content])[self.editw] in tui.page_errors:
+                error = tui.page_errors[list(tui.page_schema[MK.Content])[self.editw]]
+            else:
+                error = "No errors"
+        elif self.page_collection == "list":
+            description = tui.page_schema[MK.Content][MK.Item][MK.Description]
+            if self.editw in tui.page_errors:
+                error = tui.page_errors[self.editw]
+            else:
+                error = "No errors"
+
+        description_string = "Description: " + description + "\nError: " + error
         npyscreen.notify_confirm(
-            description, title=self._widgets_by_id[self.editw].name
+            description_string, title=self._widgets_by_id[self.editw].name
         )
 
     def edit_collection(self, *args, **keywords):
