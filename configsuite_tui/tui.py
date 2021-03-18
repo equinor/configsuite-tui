@@ -23,7 +23,7 @@ from configsuite_tui import (
 )
 
 
-def tui(**kwargs):
+def tui(config="", schema="", test=False, fork=True):
     # Variables to hold information and states of the TUI
     tui.schema = {}
     tui.schema_name = ""
@@ -43,6 +43,17 @@ def tui(**kwargs):
     pm = get_plugin_manager()
     for s in pm.hook.configsuite_tui_schema():
         tui.schema_list.update(s)
+
+    # Process arguments
+    tui.test = test
+    if schema:
+        tui.schema = tui.schema_list[schema]
+        tui.schema_name = schema
+    if config:
+        tui.config, tmp_schema = load(config)
+        if not tui.schema and tmp_schema:
+            tui.schema = tui.schema_list[tmp_schema]
+            tui.schema_name = tmp_schema
 
     App = Interface()
     if "test" in kwargs and kwargs["test"]:
