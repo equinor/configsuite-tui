@@ -104,7 +104,7 @@ class Test_Tui_With_Files(TestCase):
             "last_seen": datetime.datetime(2011, 12, 4, 0, 4, 15),
         }
         with tempfile.NamedTemporaryFile(dir=self.tmpdir) as tmpfile:
-            save(config, tmpfile.name)
+            save(config, tmpfile.name, "test")
             testinput = [
                 "^L",
                 curses.ascii.NL,

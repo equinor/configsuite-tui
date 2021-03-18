@@ -543,7 +543,7 @@ class SaveConfig(CustomSavePopup):
 
     def on_ok(self, *args, **keywords):
         if self.filename.value:
-            save(tui.config, self.filename.value)
+            save(tui.config, self.filename.value, tui.schema_name)
             tui.config_file = self.filename.value
             custom_notify_wait(
                 title="Saved", message="Configuration saved to: " + tui.config_file
@@ -562,7 +562,7 @@ class LoadConfig(CustomLoadPopup):
 
     def on_ok(self):
         try:
-            tui.config = load(self.filename.value)
+            tui.config = load(self.filename.value)[0]
             tui.config_file = self.filename.value
         except yaml.YAMLError:
             self.error_message = (
