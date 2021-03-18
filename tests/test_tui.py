@@ -186,8 +186,8 @@ class Test_Tui_With_Files(TestCase):
         self.assertEqual(
             config,
             {
-                "name": "",
-                "hobby": "",
+                "name": None,
+                "hobby": None,
                 "age": "",
                 "active": False,
                 "score": "",
@@ -221,11 +221,11 @@ class Test_Tui_With_Mocked_Schema(TestCase):
         self.assertEqual(
             config,
             {
-                "car": "",
-                "manufacturer": "",
+                "car": None,
+                "manufacturer": None,
                 "last_serviced": None,
                 "eu_approved": False,
-                "Additional": "",
+                "Additional": None,
             },
         )
         self.assertFalse(valid)

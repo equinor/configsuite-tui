@@ -263,7 +263,7 @@ class SchemaForm(CustomFormMultiPage):
                 name=name,
                 use_two_lines=False,
                 begin_entry_at=len(name) + 1,
-                value=str(value),
+                value=str(value) if value else "",
             )
 
     def adjust_widgets(self, *args, **keywords):
@@ -278,13 +278,14 @@ class SchemaForm(CustomFormMultiPage):
                 widgets = list(tui.page_config)
                 mk_type = tui.page_schema[MK.Content][MK.Value][MK.Type][0]
 
-            # Loop over widgets and update config with values
+            # Loop over widgets
             for w in widgets:
                 if self.page_collection == "named_dict":
                     mk_type = tui.page_schema[MK.Content][w][MK.Type][0]
 
                 value = self.schemawidgets[w].value
 
+                # Update config with values
                 if mk_type in ["integer", "number"]:
                     tui.page_config[w] = fast_real(value)
                 elif mk_type == "bool" and isinstance(value, int):
@@ -301,8 +302,16 @@ class SchemaForm(CustomFormMultiPage):
                         tui.page_config[w] = None
                 elif mk_type in ["list", "dict", "named_dict"]:
                     pass
+                elif not value:
+                    tui.page_config[w] = None
                 else:
                     tui.page_config[w] = value
+
+                # Change color of label if error
+                if w in list(tui.page_errors.keys()):
+                    self.schemawidgets[w].labelColor = "DANGER"
+                else:
+                    self.schemawidgets[w].labelColor = "LABEL"
 
             self.validate_config()
 
