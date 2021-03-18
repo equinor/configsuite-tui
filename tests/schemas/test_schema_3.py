@@ -1,4 +1,3 @@
-import configsuite
 from configsuite import types
 from configsuite import MetaKeys as MK
 import configsuite_tui

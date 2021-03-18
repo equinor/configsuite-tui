@@ -68,7 +68,7 @@ class Test_Tui_With_Files(TestCase):
                 curses.ascii.NL,
             ]
             npyscreen.TEST_SETTINGS["TEST_INPUT"] = testinput
-            config, valid = tui(test=True)
+            config, valid = tui(schema="test", test=True, fork=False)
 
             self.assertEqual(
                 config,
@@ -121,7 +121,7 @@ class Test_Tui_With_Files(TestCase):
                 curses.ascii.NL,
             ]
             npyscreen.TEST_SETTINGS["TEST_INPUT"] = testinput
-            config, valid = tui(test=True)
+            config, valid = tui(schema="test", test=True, fork=False)
 
             self.assertEqual(
                 config,
@@ -157,7 +157,7 @@ class Test_Tui_With_Files(TestCase):
             curses.ascii.NL,
         ]
         npyscreen.TEST_SETTINGS["TEST_INPUT"] = testinput
-        config, valid = tui()
+        config, valid = tui(fork=False)
 
         self.assertEqual(config, None)
         self.assertFalse(valid)
@@ -181,7 +181,7 @@ class Test_Tui_With_Files(TestCase):
             curses.ascii.NL,
         ]
         npyscreen.TEST_SETTINGS["TEST_INPUT"] = testinput
-        config, valid = tui(test=True)
+        config, valid = tui(test=True, fork=False)
 
         self.assertEqual(
             config,
@@ -216,7 +216,7 @@ class Test_Tui_With_Mocked_Schema(TestCase):
             curses.ascii.NL,
         ]
         npyscreen.TEST_SETTINGS["TEST_INPUT"] = testinput
-        config, valid = tui(test=True)
+        config, valid = tui(schema="test", test=True, fork=False)
 
         self.assertEqual(
             config,
@@ -258,7 +258,7 @@ class Test_Tui_With_Mocked_Schema(TestCase):
             curses.ascii.NL,
         ]
         npyscreen.TEST_SETTINGS["TEST_INPUT"] = testinput
-        config, valid = tui(test=True)
+        config, valid = tui(schema="test", test=True, fork=False)
 
         self.assertEqual(
             config,
@@ -273,8 +273,9 @@ class Test_Tui_With_Mocked_Schema(TestCase):
         self.assertTrue(valid)
 
     @mock.patch("configsuite_tui.tui.get_plugin_manager", return_value=pm)
-    def test_error_blocks_quit(self, mocked_pm):
+    def test_popup_blocks_quit(self, mocked_pm):
         testinput = [
+            "^A",
             "^Q",
             curses.ascii.NL,
             curses.KEY_RIGHT,
@@ -283,7 +284,7 @@ class Test_Tui_With_Mocked_Schema(TestCase):
         npyscreen.TEST_SETTINGS["TEST_INPUT"] = testinput
 
         with self.assertRaises(npyscreen.wgwidget.ExhaustedTestInput):
-            tui(test=True)
+            tui(test=True, fork=False)
 
 
 class Test_Tui_With_Nested_Collections(TestCase):
@@ -339,7 +340,7 @@ class Test_Tui_With_Nested_Collections(TestCase):
             curses.ascii.NL,
         ]
         npyscreen.TEST_SETTINGS["TEST_INPUT"] = testinput
-        config, valid = tui(test_fork=True)
+        config, valid = tui(test=False, fork=False)
 
         self.assertEqual(
             config,
