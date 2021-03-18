@@ -20,8 +20,18 @@ def save(config, filename, schema):
         yaml.dump(config, file, sort_keys=False)
 
 
-def validate(config, schema):
-    return ConfigSuite(config, schema, deduce_required=True).valid
+def validate(config, schema, index):
+    s = ConfigSuite(config, schema, deduce_required=True)
+    error_list = get_page_errors(s.errors, index)
+    return s.valid, error_list
+
+
+def get_page_errors(errors, index):
+    error_list = {}
+    for error in errors:
+        if error.key_path[0:-1] == tuple(index):
+            error_list[error.key_path[-1]] = error.msg
+    return error_list
 
 
 def readable(config, schema):

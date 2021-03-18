@@ -34,6 +34,7 @@ def tui(config="", schema="", test=False, fork=True):
     # Variables to hold partial schema and config for sub pages
     tui.page_schema = None
     tui.page_config = None
+    tui.page_errors = {}
     # Indexes
     tui.schema_index = []
     tui.config_index = []
@@ -310,7 +311,11 @@ class SchemaForm(CustomFormMultiPage):
         tui.config = tui.page_config
 
         if tui.schema and tui.config:
-            tui.valid = validate(tui.config, tui.schema)
+            # Validate and get errors
+            tui.valid, tui.page_errors = validate(
+                tui.config, tui.schema, tui.config_index
+            )
+            # Change color and name of TUI
             if tui.valid:
                 self.color = "GOOD"
                 self.name = (
@@ -664,7 +669,9 @@ class EditCollectionForm(SchemaForm):
             tui.config[i][j][k] = tui.page_config
 
         if tui.schema and tui.config:
-            tui.valid = validate(tui.config, tui.schema)
+            tui.valid, tui.page_errors = validate(
+                tui.config, tui.schema, tui.config_index
+            )
             if tui.valid:
                 self.color = "GOOD"
                 self.name = (
