@@ -68,7 +68,7 @@ class Test_Tui_With_Files(TestCase):
                 curses.ascii.NL,
             ]
             npyscreen.TEST_SETTINGS["TEST_INPUT"] = testinput
-            config, valid = tui(schema="test", test=True, fork=False)
+            config, valid = tui(schema="test", test=True)
 
             self.assertEqual(
                 config,
@@ -121,7 +121,7 @@ class Test_Tui_With_Files(TestCase):
                 curses.ascii.NL,
             ]
             npyscreen.TEST_SETTINGS["TEST_INPUT"] = testinput
-            config, valid = tui(schema="test", test=True, fork=False)
+            config, valid = tui(schema="test", test=True)
 
             self.assertEqual(
                 config,
@@ -157,7 +157,7 @@ class Test_Tui_With_Files(TestCase):
             curses.ascii.NL,
         ]
         npyscreen.TEST_SETTINGS["TEST_INPUT"] = testinput
-        config, valid = tui(fork=False)
+        config, valid = tui(test_fork=True)
 
         self.assertEqual(config, None)
         self.assertFalse(valid)
@@ -181,7 +181,7 @@ class Test_Tui_With_Files(TestCase):
             curses.ascii.NL,
         ]
         npyscreen.TEST_SETTINGS["TEST_INPUT"] = testinput
-        config, valid = tui(test=True, fork=False)
+        config, valid = tui(test=True)
 
         self.assertEqual(
             config,
@@ -216,7 +216,7 @@ class Test_Tui_With_Mocked_Schema(TestCase):
             curses.ascii.NL,
         ]
         npyscreen.TEST_SETTINGS["TEST_INPUT"] = testinput
-        config, valid = tui(schema="test", test=True, fork=False)
+        config, valid = tui(schema="test", test=True)
 
         self.assertEqual(
             config,
@@ -258,7 +258,7 @@ class Test_Tui_With_Mocked_Schema(TestCase):
             curses.ascii.NL,
         ]
         npyscreen.TEST_SETTINGS["TEST_INPUT"] = testinput
-        config, valid = tui(schema="test", test=True, fork=False)
+        config, valid = tui(schema="test", test=True)
 
         self.assertEqual(
             config,
@@ -284,7 +284,7 @@ class Test_Tui_With_Mocked_Schema(TestCase):
         npyscreen.TEST_SETTINGS["TEST_INPUT"] = testinput
 
         with self.assertRaises(npyscreen.wgwidget.ExhaustedTestInput):
-            tui(test=True, fork=False)
+            tui(test=True)
 
 
 class Test_Tui_With_Nested_Collections(TestCase):
@@ -340,7 +340,7 @@ class Test_Tui_With_Nested_Collections(TestCase):
             curses.ascii.NL,
         ]
         npyscreen.TEST_SETTINGS["TEST_INPUT"] = testinput
-        config, valid = tui(test=False, fork=False)
+        config, valid = tui(test_fork=True)
 
         self.assertEqual(
             config,

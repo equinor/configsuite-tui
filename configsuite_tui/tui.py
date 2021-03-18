@@ -23,7 +23,7 @@ from configsuite_tui import (
 )
 
 
-def tui(config="", schema="", test=False, fork=True):
+def tui(config="", schema="", test=False, test_fork=False):
     # Variables to hold information and states of the TUI
     tui.schema = {}
     tui.schema_name = ""
@@ -46,7 +46,6 @@ def tui(config="", schema="", test=False, fork=True):
         tui.schema_list.update(s)
 
     # Process arguments
-    tui.test = test
     if schema:
         tui.schema = tui.schema_list[schema]
         tui.schema_name = schema
@@ -58,7 +57,15 @@ def tui(config="", schema="", test=False, fork=True):
 
     # Run application
     App = Interface()
-    App.run(fork=fork)
+    if test:
+        tui.test = True
+        App.run(fork=False)
+    elif test_fork:
+        tui.test = False
+        App.run(fork=False)
+    else:
+        tui.test = False
+        App.run()
 
     return tui.config, tui.valid
 
