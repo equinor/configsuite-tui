@@ -39,7 +39,7 @@ def tui(config="", schema="", test=False, fork=True):
     tui.config_index = []
     tui.position = None
 
-    # Get list of pluggy hooks
+    # Get list of registered schemas
     pm = get_plugin_manager()
     for s in pm.hook.configsuite_tui_schema():
         tui.schema_list.update(s)
@@ -55,18 +55,10 @@ def tui(config="", schema="", test=False, fork=True):
             tui.schema = tui.schema_list[tmp_schema]
             tui.schema_name = tmp_schema
 
+    # Run application
     App = Interface()
-    if "test" in kwargs and kwargs["test"]:
-        tui.test = True
-        tui.schema = tui.schema_list["test"]
-        tui.schema_name = list(tui.schema_list.keys())[0]
-        App.run(fork=False)
-    elif "test_fork" in kwargs and kwargs["test_fork"]:
-        tui.test = False
-        App.run(fork=False)
-    else:
-        tui.test = False
-        App.run()
+    App.run(fork=fork)
+
     return tui.config, tui.valid
 
 
