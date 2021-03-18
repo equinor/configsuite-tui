@@ -30,5 +30,5 @@ setup(
         "python-dateutil",
     ],
     python_requires=">=3.6",
-    entry_points={"console_scripts": ["configsuite_tui=configsuite_tui.tui:tui"]},
+    entry_points={"console_scripts": ["configsuite_tui=configsuite_tui.__main__:main"]},
 )

@@ -84,7 +84,8 @@ class Test_Tui_With_Files(TestCase):
             )
             self.assertTrue(valid)
             test_string = (
-                "name: Jane Doe\nhobby: Electrician\nage: 35\nactive: true\nscore: "
+                "!# configsuite-tui: schema=test\n"
+                + "name: Jane Doe\nhobby: Electrician\nage: 35\nactive: true\nscore: "
                 + "45.35\nbirthday: 1999-01-01\nlast_seen: 2011-11-04 00:05:23\n"
             )
             self.assertEqual(
