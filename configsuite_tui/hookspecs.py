@@ -5,8 +5,8 @@ hookspec = pluggy.HookspecMarker("configsuite_tui")
 
 @hookspec
 def configsuite_tui_schema():
-    """Register ConfigSuite Schema on ConfigSuite-TUI
+    """Register Config Suite schema in Config Suite TUI
     Return dict: {name: schema}
     name = string
-    schema = ConfigSuite schema object
+    schema = Config Suite schema object
     """
