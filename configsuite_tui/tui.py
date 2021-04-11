@@ -582,7 +582,6 @@ class AddDictEntryForm(CustomAddDictEntryPopup):
 class SaveConfig(CustomSavePopup):
     def create(self):
         self.name = "Save configuration file"
-        self.footer = ""
         self.filename = self.add(npyscreen.TitleFilenameCombo, name="Filename")
 
     def beforeEditing(self):
