@@ -46,14 +46,7 @@ def tui(config="", schema="", test=False, test_fork=False):
         tui.schema_list.update(s)
 
     # Process arguments
-    if schema:
-        tui.schema = tui.schema_list[schema]
-        tui.schema_name = schema
-    if config:
-        tui.config, tmp_schema = load(config)
-        if not tui.schema and tmp_schema:
-            tui.schema = tui.schema_list[tmp_schema]
-            tui.schema_name = tmp_schema
+    process_arguments(config, schema)
 
     # Run application
     App = Interface()
@@ -68,6 +61,30 @@ def tui(config="", schema="", test=False, test_fork=False):
         App.run()
 
     return tui.config, tui.valid
+
+
+def process_arguments(config, schema):
+    try:
+        if schema:
+            tui.schema = tui.schema_list[schema]
+            tui.schema_name = schema
+        if config:
+            tui.config, tmp_schema = load(config)
+            if not tui.schema and tmp_schema:
+                tui.schema = tui.schema_list[tmp_schema]
+                tui.schema_name = tmp_schema
+            if not readable(tui.config, tui.schema):
+                raise SyntaxError("The configuration is not readable.")
+
+    except KeyError as e:
+        raise ValueError(
+            "No registered schema named "
+            + schema
+            + " exists.\nAvailable schemas are: "
+            + ", ".join(list(tui.schema_list.keys()))
+        ) from e
+    except Exception as e:
+        raise e
 
 
 def get_plugin_manager():
