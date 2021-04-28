@@ -10,12 +10,22 @@
 
 Config Suite TUI is text-based user interface extension for [Config Suite](https://github.com/equinor/configsuite). It provides a simplified, visual way of creating and editing configuration files for a given schema.
 
+![Config Suite TUI Screenshot](https://i.imgur.com/1py3WSl.png)
+
 ## Features
 
 -   Simplified editing of configuration files
 -   Import and export yaml files
 -   Instant validation
 -   Plugin system to provide schemas from other python modules
+
+## Install
+
+Installation of Config Suite TUI can easily be done using pip:
+
+```
+$ pip install configsuite-tui
+```
 
 ## License
 
