@@ -2,7 +2,7 @@ Usage
 =====
 Launching the TUI
 -----------------
-The TUI can be launched from the CLI, the Python Shell or inline in a function.
+The TUI can be launched from the CLI, the Python Shell, or inline in a function.
 
 Launching from the CLI
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -12,7 +12,7 @@ Launching from the CLI
 
 **Positional Arguments**
 
-config - Path to configuration file (Optional)
+config - Path to the configuration file (Optional)
 
 A configuration file can be provided for the TUI to load on startup.
 A schema has to be specified if a configuration is provided, unless the configuration 
@@ -58,7 +58,7 @@ A schema can be loaded either by specifying it at the CLI, or loading it from th
 
 All schemas for use with the TUI has to be registered with the schema plugin system of the TUI.
 This has to be done by the developer of the software in which the schema originates.
-How to register a schema with the TUI can be seen here.
+How to register a schema with the TUI can be seen :ref:`here<Registering a schema>`.
 
 Configuration file
 ------------------
