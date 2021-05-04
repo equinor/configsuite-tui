@@ -5,7 +5,7 @@
 [![MIT license](http://img.shields.io/badge/license-MIT-brightgreen.svg)](http://opensource.org/licenses/MIT)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/59b5a3b6411f4242aaec85370382d35e)](https://www.codacy.com/gh/equinor/configsuite-tui/dashboard?utm_source=github.com&utm_medium=referral&utm_content=equinor/configsuite-tui&utm_campaign=Badge_Grade)
 [![Codacy Badge](https://app.codacy.com/project/badge/Coverage/59b5a3b6411f4242aaec85370382d35e)](https://www.codacy.com/gh/equinor/configsuite-tui/dashboard?utm_source=github.com&utm_medium=referral&utm_content=equinor/configsuite-tui&utm_campaign=Badge_Coverage)
-[![Documentation Status](https://readthedocs.org/projects/config-suite-tui/badge/?version=latest)](https://config-suite-tui.readthedocs.io/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/configsuite-tui/badge/?version=latest)](https://configsuite-tui.readthedocs.io/en/latest/?badge=latest)
 
 ## Introduction
 
@@ -22,7 +22,7 @@ Config Suite TUI is a text-based user interface extension for [Config Suite](htt
 
 ## Documentation
 
-Check out the documentation on [Read the Docs](https://config-suite-tui.readthedocs.io/en/stable/).
+Check out the documentation on [Read the Docs](https://configsuite-tui.readthedocs.io/en/stable/).
 
 ## Installation
 
