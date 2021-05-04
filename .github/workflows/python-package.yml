@@ -24,6 +24,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements/requirements.txt
         pip install -r requirements/test-requirements.txt
+        pip install -r requirements/docs-requirements.txt
     - name: Tests; unittest, coverage, pylint, black, flake8
       run: |
         inv lint check test
@@ -32,3 +33,6 @@ jobs:
       with:
         project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
         coverage-reports: cobertura.xml
+    - name: Build docs
+      run: |
+        sphinx-build "docs/source" "docs/build"
