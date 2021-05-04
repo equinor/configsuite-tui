@@ -12,9 +12,12 @@ Welcome to Config Suite TUI's documentation!
 
 
 
-Indices and tables
+User Guide
 ==================
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+.. toctree::
+   :maxdepth: 2
+
+   user_guide/introduction
+   user_guide/usage
+   user_guide/schema_plugin
