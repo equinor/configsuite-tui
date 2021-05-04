@@ -2,12 +2,16 @@ import argparse
 from configsuite_tui.tui import tui
 
 
-def main():
+def parser():
     parser = argparse.ArgumentParser()
     parser.add_argument(dest="config", type=str, nargs="?", default="")
     parser.add_argument("-s", "--schema", type=str, default="", help="Name of schema")
+    return parser
 
-    args = parser.parse_args()
+
+def main():
+    arguments = parser()
+    args = arguments.parse_args()
     config = args.config
     schema = args.schema
 
